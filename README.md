@@ -9,7 +9,7 @@ Apesar de escrito em Java, o código foi elaborado seguindo um estilo de program
 mesmo considerando este estilo, não muito bem feito uma vez que há muito código redundante.
 Existem portanto inúmeras oportunidades de melhoria do código. Os dois principais aspectos que
 devem ser trabalhados no desenvolvimento deste projeto são:
-- A aplicação de princípios de orientação a objetos, através da criação de uma boa estrutura de
+- A **aplicação de princípios de orientação a objetos**, através da criação de uma boa estrutura de
 interfaces e classes bem encapsuladas, definição de uma hierarquia de classes/interfaces
 adequada, e uso de recursos como herança/composição.
 - O uso das coleções Java ao invés de arrays para manter/gerenciar as entidades do jogo que
@@ -22,4 +22,15 @@ geométricas simples e verificação de entrada através do teclado.
 
 O foco da reescrita de código deve ser a classe Main. Pode-se assumir que a classe GameLib é uma
 biblioteca fechada à qual não se tem acesso ao código-fonte (como se realmente fosse uma biblioteca
-feita por terceiros) e portanto ela não precisa ser modificada neste trabalho, apenas utilizada.
+feita por terceiros) e, portanto, ela não precisa ser modificada neste trabalho, apenas utilizada.
+
+
+## Atualizações feitas no código
+Para uma melhor organização das classes, foi criada uma nova Pasta para o pacote "game"
+- classes referentes às entidades do jogo serão agrupadas nesse pacote
+  - Player
+  - Projectile
+  - Enemy
+  - BackgroundElement
+
+Ajuda na organização das classes, além de realizar melhor o controle com os modificadores de acesso, como public e private, por exemplo
