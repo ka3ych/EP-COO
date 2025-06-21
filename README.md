@@ -34,3 +34,143 @@ Para uma melhor organização das classes, foi criada uma nova Pasta para o paco
   - BackgroundElement
 
 Ajuda na organização das classes, além de realizar melhor o controle com os modificadores de acesso, como public e private, por exemplo
+
+## Dérick YO 20/06/2025
+Galera, não entendi se devia criar mais pacotes então fiz tudo na main, yo
+
+A primeira coisa a se notar ao analisar o código original da main é a sua extensão, possuindo 669 linhas, por conta disso decididmos dividir em 3 partes:
+1a parte: tirar conteúdo desnecessário do código original e fazer pequenas melhorias
+2a parte: melhorar a base do código para colocar os power-ups, chefes de fase e fases
+3a parte: implementar os power-ups, chefes de fase e fases
+
+  1a parte:
+  A 1a coisa a se notar, é que tudo está na 'public class Main' e isso é muito ruim, pois tudo está em apenas uma classe, tem vários dados espalhados e que se repetem, e melhoraria muito a coesão se a gente tentasse separar e colocar sentido em alguns números que aparecem 'jogados'.
+
+A 1a coisa coisa feita foi atribuir constantes para algumas propriedades que se repetem para para facilitar ainda mais a coesão
+
+    /* constantes para temporização e duração de explosões    */
+    public static final long PLAYER_EXPLOSION_DURATION = 2000;
+    public static final long ENEMY_EXPLOSION_DURATION = 500;
+    
+    public static final long PLAYER_EXPLOSION_DURATION = 2000;
+    public static final long ENEMY_EXPLOSION_DURATION = 500;
+    
+    public static final double PLAYER_INITIAL_VELOCITY = 0.25;
+    public static final double PLAYER_RADIUS = 12.0;
+    public static final double ENEMY1_RADIUS = 9.0;
+    public static final double ENEMY2_RADIUS = 12.0;
+    public static final double PROJECTILE_RADIUS = 2.0;
+    public static final double COLLISION_FACTOR = 0.8;
+
+Por mais que alguns desses só sejam usadas uma única vez (tal como ENEMY_EXPLOSION_DURATION, que só fora utilizado na linha 295 do código original com valor 500) ajuda muito para entender rapidamente o que está acontecendo no código.
+
+Depois foi criada classes, para facilitar a alteração e manipulação do código, no jogo, percebemos que temos esses 4 elementos:
+- Player
+- Inimigos
+- Projeteis
+- Estrelas
+Considerando que o código original estava com o nome dos elementos em inglês, decidimos seguir nesse formato, para entender de forma mais fácil o estado do nosso código atual e comparar com o original
+
+Na classe de Player(jogador), foi inserito o estado, posicao, tempo para explosao e proximo momento permitido para disparo
+
+    // jogador (entidade controlada pelo usuário)
+    static class Player {
+        int state = ACTIVE; // estado inicial
+        double x, y; // posicao
+        double explosion_start, explosion_end; // para o tempo de explosão
+        long nextShot; // proximo momento permitido para disparo
+    }
+Tentamos manter em todas as classes nomes de variaveis usadas e repetidas no código original
+
+Na classe inimigo, é bem interessante notar que há 2 tipos de inimigos, as 'esferas cianas' (tipo1) e a 'cobra magenta' (tipo2)
+
+    // inimigo
+    static class Enemy {
+        int type; // tipo 1 ou 2
+        int state = INACTIVE; 
+        double x, y; // posicao
+        double v; // velocidade escalar
+        double angle; // angulo da direcao
+        double vr; // velocidade rotacao
+        long nextShoot; // prox momento que pode disparar
+        double explosionStart, explosionEnd; // temporizador
+    }
+Classe projetil
+
+    // projétil (disparado pelo jogador ou inimigos)
+    static class Projectile {
+        int state = INACTIVE;
+        double x, y; // posicao
+        double vx, vy; // velocidade
+    }
+
+Classe estrelas
+
+    // estrelas
+    static class Stars {
+        double x, y; // posicao
+    }
+
+No código original, havia muitas arrays, e a gente fez o possível para mudar para coleções dinamicas com encapsulamento
+
+Outra coisa que se repetia muito, de modo desnecessario, era verificar explosão
+Original 217 - 225, 233 - 241, 247 - 255, 264 - 276, que seguia essa estrutura básica, dentro de for com o tamanho da coisa atingida:
+
+    for(int i = 0; i < COISA_states.length; i++){
+    double dx = A_X - B_X;
+    double dy = A_Y - B_Y;
+    double dist = Math.sqrt(dx * dx + dy * dy);
+    
+    if(dist < (RAIO_A + RAIO_B) * 0.8) {
+        // Colisão detectada!
+      }
+    }
+
+Isso é muito redundante de se ficar repetindo, então foi criada esse boolean
+
+    /* verifica colisão entre duas entidades */
+    private static boolean checkCollision(double x1, double y1, double r1, double x2, double y2, double r2) {
+        double dx = x1 - x2;
+        double dy = y1 - y2;
+        double dist = Math.sqrt(dx * dx + dy * dy);
+        return dist < (r1 + r2) * COLLISION_FACTOR;
+    }
+
+No método principal foi reduzido a quantidade de variaveis e foi começado a se utilizar coleções para deixar o código melhor
+No código atual, é das linhas 100 - 112 as variaveis e as coleções são das linhas 116 - 120
+Foi usada, nessa linha especifica a ArrayList, agora será abordado as as 4 importações do novo código e o motivo delas
+
+    import java.util.ArrayList;
+  Implementar listas dinâmicas para melhor gerenciamento dos elementos e entidades do jogo
+  
+    import java.util.Iterator;
+  Percorrer coleções e remover elementos de forma segura
+  
+    import java.util.List;
+  Interface comum
+  
+    import java.util.Random;
+  Valores mais aleatorios para inimigos, velocidades, intervalos de disparo etc
+
+Após isso também foram inicializas as estrelas de forma randomica, nas linhas 124 - 137
+
+Agora é a parte do loop principal
+Alteramos usando algumas das constantes que colocamos no inicio e o boolean checkCollision para verificar as explosões, usando só 2 loops, um do jogador com os projeteis inimigos e outro do jogador com os inimigos
+Linhas 184 - 227
+
+Em 'Atualizações de estados', na parte de projeteis foi usado iteradores para ter remoção segura e parou deter verificações manuais de estado
+Linhas 235 - 270
+
+No de comportamento de inimigos, juntou para ter os dois tipos de inimigos (não fica tão redundante), iterador para remoção e tudo fica mais fácil de entender pois estão no mesmo fluxo.
+Linhas 273 - 374
+
+Na parte de inimigos serem 'lançados' (spawnnados), graças aos esforços passados foi substituido as partes de arrays para criação direta de objetos com uso de listas dinamicas, a forma de manutenção é por temporizadores
+Linhas 378 - 422
+
+A parte de explosão do player só mudamos para que seja if( && ) que não tem sentido ter um if dentro de outro se pode usar &&
+
+Agora em 'Verificando entrada do usuário (teclado)', só foi deixado tudo mais centralizado com criação direta dos projeteis (não precisa mais dos indices livres pois não está sendo usada arrays) e constantes para valores (definidas no inicio).
+Linhas 434 - 457
+
+Em 'Desenhor da cena', que é a parte de renderização de tudo, foi separado as camadas de renderização, usando as classes para facilitação, uso de loops for para ser mais simples, não teve muitas alterações
+Linhas 475 - 548
