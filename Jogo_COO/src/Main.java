@@ -47,6 +47,7 @@ public class Main {
         protected double damage; // quanto de dano que um GameObject aplicará em outro GameObject 
         protected int healthPoints; // número de vidas
         protected int state; // estado do objeto
+        protected Color color; // cor do objeto
 
         // métodos 
         public boolean isStateTrue(int state){ // verifica se o estado do objeto é igual ao estado passado como parâmetro
@@ -54,16 +55,20 @@ public class Main {
             else return false;
         }
 
-        public abstract void drawShape();
+        public abstract void drawShape(); // desenha a forma do objeto
 
-        public void draw(Color color){ // desenha o objeto
-            GameLib.setColor(color);
+        public void draw(){ // desenha o objeto
+            GameLib.setColor(getColor());
             drawShape();
         }
+
+        // setters
+        public void setColor(Color color) {this.color = color;} // define a cor do objeto
 
         // getters
         public double getX() {return x;}
         public double getY() {return y;}
+        public Color getColor() {return color;}
         public double getDamage() {return damage;}
         public int getHealthPoints() {return healthPoints;}
         public int getState() {return state;}
@@ -72,10 +77,25 @@ public class Main {
     abstract static class BackgroundObjects{
         // atributos
         protected double x, y; // Posição
-        
+        protected Color color; // cor do objeto
+
+        // métodos
+        public void draw(double background_count){
+            GameLib.setColor(getColor());
+            drawShape(background_count);
+        }
+
+        public abstract void drawShape(double background_count);
+
+        // setters
+        public void setColor(Color color){
+            this.color = color;
+        }
+
         // getters
         public double getX() {return x;}
         public double getY() {return y;}
+        public Color getColor() {return color;}
     }
 
     abstract static class PowerUp extends GameObject{
@@ -102,14 +122,13 @@ public class Main {
         }
 
         @Override
-        public void draw(Color color){
+        public void draw(){
             if(isStateTrue(EXPLODING)){
                 double alpha = (System.currentTimeMillis()- getExplosionStart()) / (getExplosionEnd() - getExplosionStart());
                 GameLib.drawExplosion(getX(), getY(), alpha);
             }
             else if(isStateTrue(ACTIVE)){
-                GameLib.setColor(color);
-                drawShape();
+                super.draw();
             }
         }
 
@@ -147,6 +166,7 @@ public class Main {
         // construtor
         public PlayerProjectile(double x, double y, double vx, double vy){
             super(x, y, vx, vy);
+            color = Color.GREEN; // cor do projetil do player
         }
 
         // métodos
@@ -171,6 +191,7 @@ public class Main {
         // construtor
         public EnemyProjectile(double x, double y, double vx, double vy){
             super(x, y, vx, vy);
+            color = Color.RED; // cor do projetil do inimigo
         }
 
         // métodos
@@ -201,6 +222,7 @@ public class Main {
             this.radius = PLAYER_RADIUS;
             this.damage = 1.0;
             this.healthPoints = 1;
+            color = Color.BLUE; // cor do player
         }
 
         public void moveX(double varX){this.x += varX;}
@@ -282,6 +304,7 @@ public class Main {
         // construtor
         public Enemy1(double x, double y, double escalarVelocity, double angle, double velocityRotation){
             super(1, x, y, escalarVelocity, angle, velocityRotation, ENEMY1_RADIUS, 1.0, 1);
+            color = Color.CYAN; // cor do inimigo tipo 1
         }
 
         // métodos
@@ -321,6 +344,7 @@ public class Main {
         // construtor
         public Enemy2(double x, double y, double escalarVelocity, double angle, double velocityRotation){
             super(2, x, y, escalarVelocity, angle, velocityRotation, ENEMY2_RADIUS, 1.0, 1);
+            color = Color.MAGENTA; // cor do inimigo tipo 2
         }
 
         // métodos
@@ -389,11 +413,12 @@ public class Main {
 
     
     // estrelas
-    static class Stars extends BackgroundObjects{
+    static class Stars extends BackgroundObjects {
         // construtor
-        public Stars(double x, double y){
+        public Stars(double x, double y, Color color){
             this.x = x;
             this.y = y;
+            this.color = color; // cor das estrelas
         }
 
         public void drawShape(double background_count){
@@ -440,7 +465,7 @@ public class Main {
         double background1_count = 0.0;           // Contador de animação do fundo 1
         double background2_count = 0.0;           // Contador de animação do fundo 2
        	double background1_speed = 0.070; // velocidade do background
-        //double background2_speed = 0.045; // velocidade do background distante
+        double background2_speed = 0.045; // velocidade do background distante
 
         /* coleções */
 
@@ -457,12 +482,12 @@ public class Main {
 
         Random rand = new Random();
         for(int i = 0; i < 20; i++){
-            Stars star = new Stars(rand.nextDouble() * GameLib.WIDTH, rand.nextDouble() * GameLib.HEIGHT);
+            Stars star = new Stars(rand.nextDouble() * GameLib.WIDTH, rand.nextDouble() * GameLib.HEIGHT, Color.GRAY);
             background1.add(star);
         }
         
         for(int i = 0; i < 50; i++){
-            Stars star = new Stars(rand.nextDouble() * GameLib.WIDTH, rand.nextDouble() * GameLib.HEIGHT);
+            Stars star = new Stars(rand.nextDouble() * GameLib.WIDTH, rand.nextDouble() * GameLib.HEIGHT, Color.DARK_GRAY);
             background2.add(star);
         }
                         
@@ -700,50 +725,35 @@ public class Main {
 			/*******************/
 			
 			/* desenhando plano fundo distante */
-			
-            GameLib.setColor(Color.DARK_GRAY);
-            background2_count += 0.045 * delta;
+            background2_count += background2_speed * delta;
 
             for(Stars star : background2){
-                double yPos = (star.getY() + background2_count) % GameLib.HEIGHT;
-
-                GameLib.fillRect(star.getX(), yPos, 2, 2);
+                star.draw(background2_count);
             }
 			
 			/* desenhando plano de fundo próximo */
 			
-            GameLib.setColor(Color.GRAY);
             background1_count += background1_speed * delta;
-
             for(Stars star : background1){
-                double yPos = (star.getY() + background1_count) % GameLib.HEIGHT;
-                GameLib.fillRect(star.getX(), yPos, 3, 3);
+                star.draw(background1_count);
             }
                         
             /* desenhando player */
-            player.draw(Color.BLUE);
+            player.draw();
                 
             /* desenhando projeteis (player) */
             for(Projectile p : playerProjectiles){
-                p.draw(Color.GREEN);
+                p.draw();
             }
             
             /* desenhando projeteis (inimigos) */
             for(Projectile p : enemyProjectiles) {
-                p.draw(Color.RED);
+                p.draw();
             }
             
-            /* desenhando inimigos tipo 1 e 2 */
+            /* desenhando inimigos*/
             for(Enemy e : enemies){
-                    // inimigo tipo 1 (esfera ciana)
-                    if(e.getType() == 1){
-                        e.draw(Color.CYAN);
-                    } 
-					
-                    // inimigo tipo 2 (cobra magenta)
-                    else{
-                        e.draw(Color.MAGENTA);
-                    }
+                e.draw();
             }
             
 			/* chamada a display() da classe GameLib atualiza o desenho exibido pela interface do jogo. */
