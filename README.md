@@ -1,5 +1,9 @@
 # EP Computação Orientada a Objetos
 
+* [Shoot em UP Game](#shoot-em-up-game)
+* [Derick 20/06/2025](#dérick-yo-20062025)
+* [POWERUPS](#powerups)
+
 ## Shoot em UP Game
 ![image](https://github.com/user-attachments/assets/dc5b9c5c-729c-4e1c-8590-6297b707737d)
 
