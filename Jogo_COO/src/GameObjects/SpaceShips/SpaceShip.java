@@ -1,6 +1,7 @@
 package GameObjects.SpaceShips;
 
 import GameObjects.GameObject;
+
 import GameLib.GameLib;
 
 public abstract class SpaceShip extends GameObject{

@@ -174,3 +174,69 @@ Linhas 434 - 457
 
 Em 'Desenhor da cena', que é a parte de renderização de tudo, foi separado as camadas de renderização, usando as classes para facilitação, uso de loops for para ser mais simples, não teve muitas alterações
 Linhas 475 - 548
+
+## PowerUps
+
+### Adição de Métodos Utilitários ao GameLib.java
+
+Para aprimorar as capacidades gráficas e de detecção do jogo, dois novos métodos estáticos foram implementados na classe `GameLib.java`
+
+`drawText(String text, double x, double y)`: Este método permite que textos sejam renderizados diretamente na tela do jogo, facilitando a exibição de informações visuais como rótulos de power-ups, mensagens de feedback, ou indicadores de interface.
+
+`checkCollision(double x1, double y1, double r1, double x2, double y2, double r2)`: Um método fundamental para a lógica de jogo, responsável por determinar se dois objetos circulares (representados por suas coordenadas centrais e raios) estão em colisão. Este método é crucial para a interação entre o jogador, inimigos, projéteis e power-ups."
+
+### Adição de Power-ups: Aprimorando a Capacidade do Jogador
+Para enriquecer a jogabilidade e introduzir elementos de recompensa e variação dinâmica, foram implementados três novos arquivos de classe relacionados aos power-ups, todos localizados sob o pacote `GameObjects.PowerUps`:
+
+1. `PowerUp.java` (Base):
+
+    Servir como base para todos os tipos de power-ups do jogo. Define características e comportamentos comuns como posição, raio de colisão, estado, movimento, tempo de vida na tela, e o método abstrato applyEffect() que será implementado pelas subclasses para aplicar o bônus específico ao jogador. Também inclui a lógica de detecção de colisão com o jogador e a desativação após a coleta.
+  
+2. `ShieldPowerUp.java`
+   
+    Consiste num power-up de defesa que concede ao jogador um escudo temporário. Ele, ao ser coletado, ativa um bônus de proteção por um período, absorvendo um impacto inimigo que, de outra forma, causaria dano à nave.
+    
+    Melhora o comportamento da nave ao coletar o ShieldPowerUp, a nave do jogador adquire uma camada de defesa temporária, representada visualmente por um círculo ciano ao seu redor. Funcionalmente, isso permite que o jogador resista a um único hit de inimigos ou projéteis inimigos sem perder pontos de vida, aumentando sua capacidade de sobrevivência.
+
+
+    <figure>
+      <img src="escudo.png" alt="Aparecimento do escudo para a nave" style="width:100%;">
+      <figcaption style="text-align:center;">Representação visual do escudo de proteção não coletado pela nave do jogador.</figcaption>
+    </figure>
+
+3. `TripleShotPowerUp.java`
+    
+   Consiste num power-up ofensivo que aprimora o poder de fogo da nave do jogador, permitindo que ela dispare três projéteis simultaneamente por um período limitado.
+
+    A coleta do TripleShotPowerUp eleva a capacidade ofensiva da nave. Em vez de um único projétil central, a nave passa a disparar um feixe de três projéteis, aumentando a área de cobertura e a probabilidade de atingir inimigos. Isso permite ao jogador atacar inimigos de forma mais eficiente.
+
+
+    <figure>
+      <img src="disparo-triplo.png" alt="Disparo triplo" style="width:100%;">
+      <figcaption style="text-align:center;">Representação do disparo triplo da nave.</figcaption>
+    </figure>
+
+### Detalhamento das Alterações e Integração dos Power-ups
+Para a implementação dos power-ups foram realizadas alterações em diversas classes, visando a modularidade e a clareza do código.
+
+1. **Constantes Adicionadas**
+   - `POWERUP_RADIUS`: raio para o desenho de todos os power-ups
+   - `DEFAULT_EFFECT_DURATION` definido internamente nas classes de power-ups, permitindo que cada powerUp tenha uma duração personalizada
+
+2. **Classe `Player.java`**
+  
+   - Atributos booleanos (`hasShield`, `hasTripleShot`) e temporizadores (`shieldEndTime`, `tripleShotEndTime`) controlam a ativação e a duração de cada power-up
+
+   - métodos (`activateShield`, `activateTripleShot`) são invocados quando o jogador coleta um power-up, ligando a funcionalidade
+  
+   - `update()` aprimorado para monitorar o tempo e desativar os efeitos automaticamente quando ele acaba
+
+   - `hit()` alterado para que o escudo absorva um impacto, evitando dano à nave. A lógica de `shoot()` foi atualizada para, quando o projétil triplo ativo, criar e lançar três projéteis em vez de um apenas
+
+3. **Classe `Main.java`**
+  
+    - `nextPowerUpSpawn` e uma nova lógica foram adicionados para determinar o momento e o tipo de power-up a ser gerado aleatoriamente na tela
+
+    - Uma List para PowerUps criada para guardar e processar todas as instâncias ativas. ELa é iterada para mover os power-ups, verificar suas colisões com o jogador e remover aqueles que saem da tela ou expiram sem serem coletados
+
+     - O desenho dos PowerUps foi integrado ao processo de renderização da cena, garantindo sua visibilidade
