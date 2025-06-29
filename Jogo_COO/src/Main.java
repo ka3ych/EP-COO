@@ -4,6 +4,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+// Pacotes criados por nós
+import GameLib.GameLib;
+import GameObjects.BackgroundObjects.*;
+import GameObjects.Colliders.CollideWithPlayer;
+import GameObjects.SpaceShips.*;
+import GameObjects.SpaceShips.Enemies.*;
+import GameObjects.Projectiles.*;
+
+
+
+
 /***********************************************************************/
 /*                                                                     */
 /* Para jogar:                                                         */
@@ -33,415 +44,13 @@ public class Main {
     public static final double PROJECTILE_RADIUS = 2.0;
     public static final double COLLISION_FACTOR = 0.8;
     
-    /* interfaces */
-    public interface ColideComPlayer {
-        void colideWithPlayer(Player player);        
-    }
-
-
-    /* classes */
-    abstract static class GameObject{
-        // atributos
-        protected double x, y; // Posição
-        protected double radius; // raio/tamanho de um GameObject
-        protected double damage; // quanto de dano que um GameObject aplicará em outro GameObject 
-        protected int healthPoints; // número de vidas
-        protected int state; // estado do objeto
-        protected Color color; // cor do objeto
-
-        // métodos 
-        public boolean isStateTrue(int state){ // verifica se o estado do objeto é igual ao estado passado como parâmetro
-            if(state == this.state) return true;
-            else return false;
-        }
-
-        public abstract void drawShape(); // desenha a forma do objeto
-
-        public void draw(){ // desenha o objeto
-            GameLib.setColor(getColor());
-            drawShape();
-        }
-
-        // setters
-        public void setColor(Color color) {this.color = color;} // define a cor do objeto
-
-        // getters
-        public double getX() {return x;}
-        public double getY() {return y;}
-        public Color getColor() {return color;}
-        public double getDamage() {return damage;}
-        public int getHealthPoints() {return healthPoints;}
-        public int getState() {return state;}
-    }
-
-    abstract static class BackgroundObjects{
-        // atributos
-        protected double x, y; // Posição
-        protected Color color; // cor do objeto
-
-        // métodos
-        public void draw(double background_count){
-            GameLib.setColor(getColor());
-            drawShape(background_count);
-        }
-
-        public abstract void drawShape(double background_count);
-
-        // setters
-        public void setColor(Color color){
-            this.color = color;
-        }
-
-        // getters
-        public double getX() {return x;}
-        public double getY() {return y;}
-        public Color getColor() {return color;}
-    }
-
-    abstract static class PowerUp extends GameObject{
-
-    }
-
-    abstract static class SpaceShips extends GameObject{
-        // atributos
-        protected long nextShoot; // proximo momento permitido para disparo
-        protected double explosionStart, explosionEnd; // tempo de explosão
-
-        // métodos
-        public void hit(long explosionDuration) {
-            healthPoints--;
-            if(healthPoints <= 0) {
-                explode(System.currentTimeMillis(), System.currentTimeMillis() + explosionDuration);
-            }
-        }
-
-        public void explode(double timeExplosionStart, double timeExplosionEnd){
-            state = EXPLODING;
-            this.explosionStart = timeExplosionStart;
-            this.explosionEnd = timeExplosionEnd;
-        }
-
-        @Override
-        public void draw(){
-            if(isStateTrue(EXPLODING)){
-                double alpha = (System.currentTimeMillis()- getExplosionStart()) / (getExplosionEnd() - getExplosionStart());
-                GameLib.drawExplosion(getX(), getY(), alpha);
-            }
-            else if(isStateTrue(ACTIVE)){
-                super.draw();
-            }
-        }
-
-        // getters
-        public long getNextShoot() {return nextShoot;}
-        public double getExplosionStart() {return explosionStart;}
-        public double getExplosionEnd() {return explosionEnd;}
-    }
-
-    abstract static class Projectile extends GameObject{
-        private double vx, vy; // velocidade
-
-        public Projectile(double x, double y, double vx, double vy){
-            this.x = x;
-            this.y = y;
-            this.vx = vx;
-            this.vy = vy;
-            this.state = ACTIVE;
-            radius = PROJECTILE_RADIUS; // raio do projetil
-            this.damage = 1.0; // dano do projetil 
-        }
-
-        public void move(long delta){
-            x += vx * delta;
-            y += vy * delta;
-        }
-
-        // getters
-        public double getVelocityX() {return this.vx;}
-        public double getVelocityY() {return this.vy;}
-    }
-
-    static class PlayerProjectile extends Projectile{
-
-        // construtor
-        public PlayerProjectile(double x, double y, double vx, double vy){
-            super(x, y, vx, vy);
-            color = Color.GREEN; // cor do projetil do player
-        }
-
-        // métodos
-        public void drawShape(){
-            if(isStateTrue(ACTIVE)){
-                GameLib.drawLine(getX(), getY() - 5, getX(), getY() + 5);
-                GameLib.drawLine(getX() - 1, getY() - 3, getX() - 1, getY() + 3);
-                GameLib.drawLine(getX() + 1, getY() - 3, getX() + 1, getY() + 3);
-            }
-        }
-
-        public void colideEnemy(Enemy enemy) {
-            if(isStateTrue(ACTIVE) && checkCollision(getX(), getY(), radius, enemy.getX(), enemy.getY(), enemy.radius)) {
-                enemy.hit(ENEMY_EXPLOSION_DURATION);
-                state = INACTIVE; // Desativa o projetil após colidir   
-            }
-        }
-    }
-
-    static class EnemyProjectile extends Projectile implements ColideComPlayer{
-
-        // construtor
-        public EnemyProjectile(double x, double y, double vx, double vy){
-            super(x, y, vx, vy);
-            color = Color.RED; // cor do projetil do inimigo
-        }
-
-        // métodos
-        public void drawShape(){
-            if(isStateTrue(ACTIVE)) {
-                GameLib.drawCircle(getX(), getY(), PROJECTILE_RADIUS);
-            }
-        }
-
-        @Override
-        public void colideWithPlayer(Main.Player player) {
-            if(isStateTrue(ACTIVE) && checkCollision(getX(), getY(), radius, player.getX(), player.getY(), player.radius)) {
-                player.hit(PLAYER_EXPLOSION_DURATION);
-                state = INACTIVE; // Desativa o projetil após colidir
-            }
-        }
-    }
-
-
-    // jogador (entidade controlada pelo usuário)
-    static class Player extends SpaceShips{
-        // construtor do Player
-        public Player(double x, double y, long nextShoot){
-            this.x = x;
-            this.y = y;
-            this.nextShoot = nextShoot;
-            state = ACTIVE;
-            this.radius = PLAYER_RADIUS;
-            this.damage = 1.0;
-            this.healthPoints = 1;
-            color = Color.BLUE; // cor do player
-        }
-
-        public void moveX(double varX){this.x += varX;}
-
-        public void moveY(double varY){this.y += varY;}
-
-        public void shoot(long time){nextShoot = time + 100;}
-
-        public void activate(){state = ACTIVE;}
-
-        public void outOfBounds(){
-            if(this.getX() < 0.0) this.x = 0.0;
-            if(this.getX() >= GameLib.WIDTH) this.x = GameLib.WIDTH - 1;
-            if(this.getY() < 25.0) this.y = 25.0;
-            if(this.getY() >= GameLib.HEIGHT) this.y = GameLib.HEIGHT - 1;
-        }
-
-        public void drawShape(){
-            GameLib.drawPlayer(getX(), getY(), PLAYER_RADIUS); 
-        }
-        
-    }
-    
-    // inimigo
-    abstract static class Enemy extends SpaceShips implements ColideComPlayer{
-        protected int type; // tipo 1 ou 2
-        protected double v; // velocidade escalar
-        protected double angle; // angulo da direcao
-        protected double vr; // velocidade rotacao
-
-        // construtor
-        public Enemy(int type, double x, double y, double escalarVelocity, double angle, double velocityRotation, double radius, double damage, int healthPoints){
-            this.type = type;
-            this.x = x;
-            this.y = y;
-            this.v = escalarVelocity;
-            this.angle = angle;
-            this.vr = velocityRotation;
-            this.state = ACTIVE;
-            this.radius = radius;
-            this.damage = damage;
-            this.healthPoints = healthPoints;
-        }
-
-        // métodos
-        abstract public void moveAndDirection(long time);
-            /*x += v * Math.cos(angle) * time;
-            y += v * Math.sin(angle) * time * (-1.0);
-            angle += vr * time;*/
-        
-
-        @Override
-        public void colideWithPlayer(Main.Player player) {
-            if(isStateTrue(ACTIVE) && checkCollision(getX(), getY(), radius, player.getX(), player.getY(), player.radius)) {
-                player.hit(PLAYER_EXPLOSION_DURATION);
-                explode(System.currentTimeMillis(), System.currentTimeMillis() + ENEMY_EXPLOSION_DURATION);
-            }
-        }
-        
-
-        public void changeDirection(){
-            if(x < GameLib.WIDTH / 2) vr = 0.003;
-            else vr = -0.003;
-        }
-
-        // setters
-        public void setNextShoot(long cooldown) {nextShoot = cooldown;}
-        public void setAngle(double angle) {this.angle = angle;}
-        public void setVelocityRotation(double vr) {this.vr = vr;}
-
-        // getters
-        public double getEscalarVelocity(){return v;}
-        public double getAngle(){return angle;}
-        public double getRotationVelocity(){return vr;}
-        public int getType(){return type;}
-    }
-
-    static class Enemy1 extends Enemy{
-        // construtor
-        public Enemy1(double x, double y, double escalarVelocity, double angle, double velocityRotation){
-            super(1, x, y, escalarVelocity, angle, velocityRotation, ENEMY1_RADIUS, 1.0, 1);
-            color = Color.CYAN; // cor do inimigo tipo 1
-        }
-
-        // métodos
-        public void drawShape(){
-            if(isStateTrue(ACTIVE)){
-                GameLib.drawCircle(getX(), getY(), ENEMY1_RADIUS);
-            }
-        }
-
-        public void moveAndDirection(long time){
-            x += getEscalarVelocity() * Math.cos(getAngle()) * time;
-            y += getEscalarVelocity() * Math.sin(getAngle()) * time * (-1.0);
-            angle += getRotationVelocity() * time;
-        }
-
-        public void shoot(List<EnemyProjectile> enemyProjectiles, List<ColideComPlayer> colideComPlayer) {
-            // disparo de projetil
-            if(System.currentTimeMillis() > getNextShoot()){
-                Random rand = new Random();
-                EnemyProjectile proj = new EnemyProjectile(
-                    getX(),
-                    getY(),
-                    Math.cos(getAngle()) * 0.45,
-                    Math.sin(getAngle()) * 0.45 * (-1.0)
-                );
-                
-                enemyProjectiles.add(proj);
-                colideComPlayer.add(proj);
-                setNextShoot((long)(System.currentTimeMillis() + 200 + rand.nextDouble() * 500));
-            }
-        }
-    }
-
-    static class Enemy2 extends Enemy{
-        boolean shootNow = false;
-
-        // construtor
-        public Enemy2(double x, double y, double escalarVelocity, double angle, double velocityRotation){
-            super(2, x, y, escalarVelocity, angle, velocityRotation, ENEMY2_RADIUS, 1.0, 1);
-            color = Color.MAGENTA; // cor do inimigo tipo 2
-        }
-
-        // métodos
-        public void drawShape(){
-            if(isStateTrue(ACTIVE)){
-                GameLib.drawDiamond(getX(), getY(), ENEMY2_RADIUS);
-            }
-        }
-
-        public void moveAndDirection(long time){
-            double previousY = getY();
-
-            x += getEscalarVelocity() * Math.cos(getAngle()) * time;
-            y += getEscalarVelocity() * Math.sin(getAngle()) * time * (-1.0);
-            angle += getRotationVelocity() * time;
-
-
-            double threshold = GameLib.HEIGHT * 0.30;
-            if(previousY < threshold && getY() >= threshold) {
-                changeDirection();
-            }
-        }
-
-        public void getShootPoints(){
-            if(getRotationVelocity() > 0 && Math.abs(getAngle() - 3 * Math.PI) < 0.05) {
-                setVelocityRotation(0.0);
-                setAngle(3 * Math.PI);
-                shootNow = true;
-            }
-
-            else if(getRotationVelocity() < 0 && Math.abs(getAngle()) < 0.05) {
-                setVelocityRotation(0.0);
-                setAngle(0);
-                shootNow = true;
-            }
-        }
-
-        public void shoot(List<EnemyProjectile> enemyProjectiles, List<ColideComPlayer> colideComPlayer) {
-            getShootPoints();
-            
-            if(shootNow){
-                Random rand = new Random();
-                double[] angles = { 
-                    Math.PI/2 + Math.PI/8, 
-                    Math.PI/2, 
-                    Math.PI/2 - Math.PI/8 
-                };
-                for(double angle : angles){
-                    double a = angle + rand.nextDouble() * Math.PI/6 - Math.PI/12;
-
-                    EnemyProjectile proj = new EnemyProjectile(
-                        getX(),
-                        getY(),
-                        Math.cos(a) * 0.30,
-                        Math.sin(a) * 0.30
-                    );
-
-                    enemyProjectiles.add(proj);
-                    colideComPlayer.add(proj);
-                }
-                shootNow = false; 
-            }
-            
-        }
-    }
-
-    
-    // estrelas
-    static class Stars extends BackgroundObjects {
-        // construtor
-        public Stars(double x, double y, Color color){
-            this.x = x;
-            this.y = y;
-            this.color = color; // cor das estrelas
-        }
-
-        public void drawShape(double background_count){
-            double yPos = (getY() + background_count) % GameLib.HEIGHT;
-            GameLib.fillRect(getX(), yPos, 3, 3);
-        }
-    }
     
     /* Espera ativamente até o momento especificado para controle de framerate */
     public static void busyWait(long time){
         while(System.currentTimeMillis() < time) Thread.yield();
     }
     
-    /* verifica colisão entre duas entidades */
-    private static boolean checkCollision(double x1, double y1, double r1, double x2, double y2, double r2) {
-        double dx = x1 - x2;
-        double dy = y1 - y2;
-        double dist = Math.sqrt(dx * dx + dy * dy);
-        return dist < (r1 + r2) * COLLISION_FACTOR;
-    }
-    
 	/* Método principal */
-
     public static void main(String [] args) {
 
         /* Indica que o jogo está em execução */
@@ -474,7 +83,7 @@ public class Main {
         List<Enemy> enemies = new ArrayList<>(); // Todos os inimigos>
         List<Enemy1> enemies1 = new ArrayList<>(); // Inimigos tipo 1
         List<Enemy2> enemies2 = new ArrayList<>(); // Inimigos
-        List<ColideComPlayer> colideComPlayer = new ArrayList<>(); // Lista de objetos que colidem com o player
+        List<CollideWithPlayer> colideComPlayer = new ArrayList<>(); // Lista de objetos que colidem com o player
         List<Stars> background1 = new ArrayList<>(); // Estrelas de fundo próximo
         List<Stars> background2 = new ArrayList<>(); // Estrelas de fundo distante
         
@@ -534,7 +143,7 @@ public class Main {
             
             /* colisões player */
             if(player.isStateTrue(ACTIVE)){
-                for(ColideComPlayer ccp : colideComPlayer){
+                for(CollideWithPlayer ccp : colideComPlayer){
                     ccp.colideWithPlayer(player);
                 }
             }
@@ -546,7 +155,7 @@ public class Main {
                 
                 for(Enemy e : enemies) {
                     if(!e.isStateTrue(ACTIVE)) continue;
-                    p.colideEnemy(e);
+                    p.collideEnemy(e);
                 }
             }
                 
@@ -698,7 +307,7 @@ public class Main {
                 // disparo
                 if(GameLib.iskeyPressed(GameLib.KEY_CONTROL)) {
 
-                    if(currentTime > player.nextShoot){
+                    if(currentTime > player.getNextShoot()){
 
                         PlayerProjectile p = new PlayerProjectile(
                             player.getX(),
