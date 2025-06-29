@@ -3,7 +3,7 @@ package GameObjects.Projectiles;
 import java.awt.Color;
 import GameLib.GameLib;
 import GameObjects.SpaceShips.Player;
-import GameObjects.Colliders.*;
+import GameObjects.Colliders.CollideWithPlayer;
 
 
 public class EnemyProjectile extends Projectile implements CollideWithPlayer{

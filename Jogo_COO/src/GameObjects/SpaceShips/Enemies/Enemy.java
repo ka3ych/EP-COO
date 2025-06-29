@@ -2,7 +2,7 @@ package GameObjects.SpaceShips.Enemies;
 
 import GameLib.GameLib;
 import GameObjects.SpaceShips.SpaceShip;
-import GameObjects.Colliders.*;
+import GameObjects.Colliders.CollideWithPlayer;
 import GameObjects.SpaceShips.Player;
 
 // inimigo
@@ -11,7 +11,6 @@ public abstract class Enemy extends SpaceShip implements CollideWithPlayer{
     protected double v; // velocidade escalar
     protected double angle; // angulo da direcao
     protected double vr; // velocidade rotacao
-    protected CheckerCollider checkerCollider;
 
     // construtor
     public Enemy(int type, double x, double y, double escalarVelocity, double angle, double velocityRotation, double radius, double damage, int healthPoints){
@@ -25,14 +24,10 @@ public abstract class Enemy extends SpaceShip implements CollideWithPlayer{
         this.radius = radius;
         this.damage = damage;
         this.healthPoints = healthPoints;
-        checkerCollider = new CheckerCollider();
     }
 
     // métodos
     abstract public void moveAndDirection(long time);
-        /*x += v * Math.cos(angle) * time;
-        y += v * Math.sin(angle) * time * (-1.0);
-        angle += vr * time;*/
     
 
     @Override

@@ -3,9 +3,9 @@ package GameObjects.SpaceShips.Enemies;
 import java.awt.Color;
 import java.util.List;
 import java.util.Random;
-import GameObjects.Colliders.*;
+import GameObjects.Colliders.CollideWithPlayer;
 import GameLib.GameLib;
-import GameObjects.Projectiles.*;
+import GameObjects.Projectiles.EnemyProjectile;
 
 
 public class Enemy1 extends Enemy{
