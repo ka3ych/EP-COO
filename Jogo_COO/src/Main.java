@@ -15,7 +15,6 @@ import java.util.Random;
 /***********************************************************************/
 
 public class Main {
-    
 	/* Constantes relacionadas aos estados que os elementos do jogo (player, projeteis ou inimigos) podem assumir. */
 
     public static final int INACTIVE = 0;
@@ -48,23 +47,28 @@ public class Main {
         protected double damage; // quanto de dano que um GameObject aplicará em outro GameObject 
         protected int healthPoints; // número de vidas
         protected int state; // estado do objeto
+        protected Color color; // cor do objeto
 
         // métodos 
-        public boolean isStateTrue(int state){
+        public boolean isStateTrue(int state){ // verifica se o estado do objeto é igual ao estado passado como parâmetro
             if(state == this.state) return true;
             else return false;
         }
 
-        public abstract void drawShape();
+        public abstract void drawShape(); // desenha a forma do objeto
 
-        public void draw(Color color){
-            GameLib.setColor(color);
+        public void draw(){ // desenha o objeto
+            GameLib.setColor(getColor());
             drawShape();
         }
+
+        // setters
+        public void setColor(Color color) {this.color = color;} // define a cor do objeto
 
         // getters
         public double getX() {return x;}
         public double getY() {return y;}
+        public Color getColor() {return color;}
         public double getDamage() {return damage;}
         public int getHealthPoints() {return healthPoints;}
         public int getState() {return state;}
@@ -73,10 +77,25 @@ public class Main {
     abstract static class BackgroundObjects{
         // atributos
         protected double x, y; // Posição
+        protected Color color; // cor do objeto
+
+        // métodos
+        public void draw(double background_count){
+            GameLib.setColor(getColor());
+            drawShape(background_count);
+        }
+
+        public abstract void drawShape(double background_count);
+
+        // setters
+        public void setColor(Color color){
+            this.color = color;
+        }
 
         // getters
         public double getX() {return x;}
         public double getY() {return y;}
+        public Color getColor() {return color;}
     }
 
     abstract static class PowerUp extends GameObject{
@@ -103,14 +122,13 @@ public class Main {
         }
 
         @Override
-        public void draw(Color color){
+        public void draw(){
             if(isStateTrue(EXPLODING)){
                 double alpha = (System.currentTimeMillis()- getExplosionStart()) / (getExplosionEnd() - getExplosionStart());
                 GameLib.drawExplosion(getX(), getY(), alpha);
             }
-            else{
-                GameLib.setColor(color);
-                drawShape();
+            else if(isStateTrue(ACTIVE)){
+                super.draw();
             }
         }
 
@@ -148,6 +166,7 @@ public class Main {
         // construtor
         public PlayerProjectile(double x, double y, double vx, double vy){
             super(x, y, vx, vy);
+            color = Color.GREEN; // cor do projetil do player
         }
 
         // métodos
@@ -172,6 +191,7 @@ public class Main {
         // construtor
         public EnemyProjectile(double x, double y, double vx, double vy){
             super(x, y, vx, vy);
+            color = Color.RED; // cor do projetil do inimigo
         }
 
         // métodos
@@ -202,6 +222,7 @@ public class Main {
             this.radius = PLAYER_RADIUS;
             this.damage = 1.0;
             this.healthPoints = 1;
+            color = Color.BLUE; // cor do player
         }
 
         public void moveX(double varX){this.x += varX;}
@@ -227,10 +248,10 @@ public class Main {
     
     // inimigo
     abstract static class Enemy extends SpaceShips implements ColideComPlayer{
-        private int type; // tipo 1 ou 2
-        private double v; // velocidade escalar
-        private double angle; // angulo da direcao
-        private double vr; // velocidade rotacao
+        protected int type; // tipo 1 ou 2
+        protected double v; // velocidade escalar
+        protected double angle; // angulo da direcao
+        protected double vr; // velocidade rotacao
 
         // construtor
         public Enemy(int type, double x, double y, double escalarVelocity, double angle, double velocityRotation, double radius, double damage, int healthPoints){
@@ -247,19 +268,20 @@ public class Main {
         }
 
         // métodos
-        public void moveAndDirection(long time){
-            x += v * Math.cos(angle) * time;
+        abstract public void moveAndDirection(long time);
+            /*x += v * Math.cos(angle) * time;
             y += v * Math.sin(angle) * time * (-1.0);
-            angle += vr * time;
-        }
+            angle += vr * time;*/
+        
 
         @Override
         public void colideWithPlayer(Main.Player player) {
             if(isStateTrue(ACTIVE) && checkCollision(getX(), getY(), radius, player.getX(), player.getY(), player.radius)) {
                 player.hit(PLAYER_EXPLOSION_DURATION);
-                state = INACTIVE; // Desativa o inimigo após colidir
+                explode(System.currentTimeMillis(), System.currentTimeMillis() + ENEMY_EXPLOSION_DURATION);
             }
         }
+        
 
         public void changeDirection(){
             if(x < GameLib.WIDTH / 2) vr = 0.003;
@@ -282,6 +304,7 @@ public class Main {
         // construtor
         public Enemy1(double x, double y, double escalarVelocity, double angle, double velocityRotation){
             super(1, x, y, escalarVelocity, angle, velocityRotation, ENEMY1_RADIUS, 1.0, 1);
+            color = Color.CYAN; // cor do inimigo tipo 1
         }
 
         // métodos
@@ -290,12 +313,38 @@ public class Main {
                 GameLib.drawCircle(getX(), getY(), ENEMY1_RADIUS);
             }
         }
+
+        public void moveAndDirection(long time){
+            x += getEscalarVelocity() * Math.cos(getAngle()) * time;
+            y += getEscalarVelocity() * Math.sin(getAngle()) * time * (-1.0);
+            angle += getRotationVelocity() * time;
+        }
+
+        public void shoot(List<EnemyProjectile> enemyProjectiles, List<ColideComPlayer> colideComPlayer) {
+            // disparo de projetil
+            if(System.currentTimeMillis() > getNextShoot()){
+                Random rand = new Random();
+                EnemyProjectile proj = new EnemyProjectile(
+                    getX(),
+                    getY(),
+                    Math.cos(getAngle()) * 0.45,
+                    Math.sin(getAngle()) * 0.45 * (-1.0)
+                );
+                
+                enemyProjectiles.add(proj);
+                colideComPlayer.add(proj);
+                setNextShoot((long)(System.currentTimeMillis() + 200 + rand.nextDouble() * 500));
+            }
+        }
     }
 
     static class Enemy2 extends Enemy{
+        boolean shootNow = false;
+
         // construtor
         public Enemy2(double x, double y, double escalarVelocity, double angle, double velocityRotation){
             super(2, x, y, escalarVelocity, angle, velocityRotation, ENEMY2_RADIUS, 1.0, 1);
+            color = Color.MAGENTA; // cor do inimigo tipo 2
         }
 
         // métodos
@@ -304,15 +353,77 @@ public class Main {
                 GameLib.drawDiamond(getX(), getY(), ENEMY2_RADIUS);
             }
         }
+
+        public void moveAndDirection(long time){
+            double previousY = getY();
+
+            x += getEscalarVelocity() * Math.cos(getAngle()) * time;
+            y += getEscalarVelocity() * Math.sin(getAngle()) * time * (-1.0);
+            angle += getRotationVelocity() * time;
+
+
+            double threshold = GameLib.HEIGHT * 0.30;
+            if(previousY < threshold && getY() >= threshold) {
+                changeDirection();
+            }
+        }
+
+        public void getShootPoints(){
+            if(getRotationVelocity() > 0 && Math.abs(getAngle() - 3 * Math.PI) < 0.05) {
+                setVelocityRotation(0.0);
+                setAngle(3 * Math.PI);
+                shootNow = true;
+            }
+
+            else if(getRotationVelocity() < 0 && Math.abs(getAngle()) < 0.05) {
+                setVelocityRotation(0.0);
+                setAngle(0);
+                shootNow = true;
+            }
+        }
+
+        public void shoot(List<EnemyProjectile> enemyProjectiles, List<ColideComPlayer> colideComPlayer) {
+            getShootPoints();
+            
+            if(shootNow){
+                Random rand = new Random();
+                double[] angles = { 
+                    Math.PI/2 + Math.PI/8, 
+                    Math.PI/2, 
+                    Math.PI/2 - Math.PI/8 
+                };
+                for(double angle : angles){
+                    double a = angle + rand.nextDouble() * Math.PI/6 - Math.PI/12;
+
+                    EnemyProjectile proj = new EnemyProjectile(
+                        getX(),
+                        getY(),
+                        Math.cos(a) * 0.30,
+                        Math.sin(a) * 0.30
+                    );
+
+                    enemyProjectiles.add(proj);
+                    colideComPlayer.add(proj);
+                }
+                shootNow = false; 
+            }
+            
+        }
     }
 
     
     // estrelas
-    static class Stars extends BackgroundObjects{
+    static class Stars extends BackgroundObjects {
         // construtor
-        public Stars(double x, double y){
+        public Stars(double x, double y, Color color){
             this.x = x;
             this.y = y;
+            this.color = color; // cor das estrelas
+        }
+
+        public void drawShape(double background_count){
+            double yPos = (getY() + background_count) % GameLib.HEIGHT;
+            GameLib.fillRect(getX(), yPos, 3, 3);
         }
     }
     
@@ -354,12 +465,15 @@ public class Main {
         double background1_count = 0.0;           // Contador de animação do fundo 1
         double background2_count = 0.0;           // Contador de animação do fundo 2
        	double background1_speed = 0.070; // velocidade do background
+        double background2_speed = 0.045; // velocidade do background distante
 
         /* coleções */
 
         List<PlayerProjectile> playerProjectiles = new ArrayList<>(); // Projéteis do jogador
         List<EnemyProjectile> enemyProjectiles = new ArrayList<>(); // Projéteis inimigos
         List<Enemy> enemies = new ArrayList<>(); // Todos os inimigos>
+        List<Enemy1> enemies1 = new ArrayList<>(); // Inimigos tipo 1
+        List<Enemy2> enemies2 = new ArrayList<>(); // Inimigos
         List<ColideComPlayer> colideComPlayer = new ArrayList<>(); // Lista de objetos que colidem com o player
         List<Stars> background1 = new ArrayList<>(); // Estrelas de fundo próximo
         List<Stars> background2 = new ArrayList<>(); // Estrelas de fundo distante
@@ -368,12 +482,12 @@ public class Main {
 
         Random rand = new Random();
         for(int i = 0; i < 20; i++){
-            Stars star = new Stars(rand.nextDouble() * GameLib.WIDTH, rand.nextDouble() * GameLib.HEIGHT);
+            Stars star = new Stars(rand.nextDouble() * GameLib.WIDTH, rand.nextDouble() * GameLib.HEIGHT, Color.GRAY);
             background1.add(star);
         }
         
         for(int i = 0; i < 50; i++){
-            Stars star = new Stars(rand.nextDouble() * GameLib.WIDTH, rand.nextDouble() * GameLib.HEIGHT);
+            Stars star = new Stars(rand.nextDouble() * GameLib.WIDTH, rand.nextDouble() * GameLib.HEIGHT, Color.DARK_GRAY);
             background2.add(star);
         }
                         
@@ -488,91 +602,29 @@ public class Main {
                         enemyIter.remove();
                     }
                 }
+                else if(e.isStateTrue(ACTIVE)) e.moveAndDirection(delta);
+
+                /* verificando se inimigo saiu da tela */
+                if(e.getY() > GameLib.HEIGHT + 10 || (e.getX() < -10 || e.getX() > GameLib.WIDTH + 10)) {
+                    enemyIter.remove();
+                } 
+            }
+
+            Iterator<Enemy1> enemy1Iter = enemies1.iterator();
+            while(enemy1Iter.hasNext()){
+                Enemy1 e = enemy1Iter.next();
+
+                if(e.isStateTrue(ACTIVE)){                     
+                    e.shoot(enemyProjectiles, colideComPlayer);
+                }
+            }
+
+            Iterator<Enemy2> enemy2Iter = enemies2.iterator();
+            while(enemy2Iter.hasNext()){
+                Enemy2 e = enemy2Iter.next();
                 
-                // pra inimigos tipo 1 e tipo 2
                 if(e.isStateTrue(ACTIVE)) {
-
-                    /* inimigos tipo 1 */
-
-                    if(e.getType() == 1) {
-
-                        // posicao e direcao
-                        e.moveAndDirection(delta);
-                        
-					    /* verificando se inimigo saiu da tela */
-                        if(e.getY() > GameLib.HEIGHT + 10) {
-                            enemyIter.remove();
-                        } 
-
-                        // disparo de projetil
-                        else if(currentTime > e.getNextShoot() && e.getY() < player.getY()){
-
-                            EnemyProjectile proj = new EnemyProjectile(
-                                e.getX(),
-                                e.getY(),
-                                Math.cos(e.getAngle()) * 0.45,
-                                Math.sin(e.getAngle()) * 0.45 * (-1.0)
-                            );
-                            
-                            enemyProjectiles.add(proj);
-                            colideComPlayer.add(proj);
-                            e.setNextShoot((long)(currentTime + 200 + rand.nextDouble() * 500));
-                        }
-                    } 
-
-			        /* inimigos tipo 2 */
-                    else{ 
-                        boolean shootNow = false;
-                        double previousY = e.getY();
-                        
-                        // posicao e direcao
-                        e.moveAndDirection(delta);
-                        
-                        // verifica se vai mudar de direcao
-                        double threshold = GameLib.HEIGHT * 0.30;
-                        if(previousY < threshold && e.getY() >= threshold) {
-                            e.changeDirection();
-                        }
-                        
-                        // verifica os pontos de disparo
-                        if(e.getRotationVelocity() > 0 && Math.abs(e.getAngle() - 3 * Math.PI) < 0.05) {
-                            e.setVelocityRotation(0.0);
-                            e.setAngle(3 * Math.PI);
-                            shootNow = true;
-                        }
-                        
-                        if(e.getRotationVelocity() < 0 && Math.abs(e.getAngle()) < 0.05) {
-                            e.setVelocityRotation(0.0);
-                            e.setAngle(0);
-                            shootNow = true;
-                        }
-                        
-					    /* verificando se inimigo saiu da tela */
-                        if(e.getX() < -10 || e.getX() > GameLib.WIDTH + 10){
-                            enemyIter.remove();
-                        } 
-
-                        else if(shootNow){
-                            double[] angles = { 
-                                Math.PI/2 + Math.PI/8, 
-                                Math.PI/2, 
-                                Math.PI/2 - Math.PI/8 
-                            };
-                            for(double angle : angles){
-                                double a = angle + rand.nextDouble() * Math.PI/6 - Math.PI/12;
-
-                                EnemyProjectile proj = new EnemyProjectile(
-                                    e.getX(),
-                                    e.getY(),
-                                    Math.cos(a) * 0.30,
-                                    Math.sin(a) * 0.30
-                                );
-
-                                enemyProjectiles.add(proj);
-                                colideComPlayer.add(proj);
-                            }
-                        }
-                    }
+                    e.shoot(enemyProjectiles, colideComPlayer);
                 }
             }
             
@@ -580,7 +632,7 @@ public class Main {
 
             if(currentTime > nextEnemy1){
 
-                Enemy e = new Enemy1(
+                Enemy1 e = new Enemy1(
                     rand.nextDouble() * (GameLib.WIDTH - 20.0) + 10.0,
                     -10.0,
                     0.20 + rand.nextDouble() * 0.15,
@@ -590,6 +642,7 @@ public class Main {
                 e.setNextShoot(currentTime + 500);
 
                 enemies.add(e);
+                enemies1.add(e);
                 colideComPlayer.add(e);
                 nextEnemy1 = currentTime + 500;
             }
@@ -598,7 +651,7 @@ public class Main {
 
             if(currentTime > nextEnemy2){
 
-                Enemy e = new Enemy2(
+                Enemy2 e = new Enemy2(
                     enemy2_spawnX,
                     -10.0,
                     0.42,
@@ -607,6 +660,7 @@ public class Main {
                 );
 
                 enemies.add(e);
+                enemies2.add(e);
                 colideComPlayer.add(e);
 
                 enemy2_count++;
@@ -671,50 +725,35 @@ public class Main {
 			/*******************/
 			
 			/* desenhando plano fundo distante */
-			
-            GameLib.setColor(Color.DARK_GRAY);
-            background2_count += 0.045 * delta;
+            background2_count += background2_speed * delta;
 
             for(Stars star : background2){
-                double yPos = (star.getY() + background2_count) % GameLib.HEIGHT;
-
-                GameLib.fillRect(star.getX(), yPos, 2, 2);
+                star.draw(background2_count);
             }
 			
 			/* desenhando plano de fundo próximo */
 			
-            GameLib.setColor(Color.GRAY);
             background1_count += background1_speed * delta;
-
             for(Stars star : background1){
-                double yPos = (star.getY() + background1_count) % GameLib.HEIGHT;
-                GameLib.fillRect(star.getX(), yPos, 3, 3);
+                star.draw(background1_count);
             }
                         
             /* desenhando player */
-            player.draw(Color.BLUE);
+            player.draw();
                 
             /* desenhando projeteis (player) */
             for(Projectile p : playerProjectiles){
-                p.draw(Color.GREEN);
+                p.draw();
             }
             
             /* desenhando projeteis (inimigos) */
             for(Projectile p : enemyProjectiles) {
-                p.draw(Color.RED);
+                p.draw();
             }
             
-            /* desenhando inimigos tipo 1 e 2 */
+            /* desenhando inimigos*/
             for(Enemy e : enemies){
-                    // inimigo tipo 1 (esfera ciana)
-                    if(e.getType() == 1){
-                        e.draw(Color.CYAN);
-                    } 
-					
-                    // inimigo tipo 2 (cobra magenta)
-                    else{
-                        e.draw(Color.MAGENTA);
-                    }
+                e.draw();
             }
             
 			/* chamada a display() da classe GameLib atualiza o desenho exibido pela interface do jogo. */
