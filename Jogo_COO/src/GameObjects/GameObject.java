@@ -10,7 +10,8 @@ public abstract class GameObject{
 
     public static final int INACTIVE = 0;
     public static final int ACTIVE = 1;
-    public static final int EXPLODING = 2;
+    public static final int INVINCIBLE = 2;
+    public static final int EXPLODING = 3;
     
     /* constantes para temporização e duração de explosões    */
     public static final long PLAYER_EXPLOSION_DURATION = 2000;

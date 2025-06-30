@@ -23,7 +23,7 @@ public class EnemyProjectile extends Projectile implements CollideWithPlayer{
 
         @Override
         public void colideWithPlayer(Player player) {
-            if(isStateTrue(ACTIVE) && checkerCollider.checkCollision(getX(), getY(), radius, player.getX(), player.getY(), player.getRadius())) {
+            if(player.isStateTrue(ACTIVE) && isStateTrue(ACTIVE) && checkerCollider.checkCollision(getX(), getY(), radius, player.getX(), player.getY(), player.getRadius())) {
                 player.hit(PLAYER_EXPLOSION_DURATION);
                 state = INACTIVE; // Desativa o projetil após colidir
             }

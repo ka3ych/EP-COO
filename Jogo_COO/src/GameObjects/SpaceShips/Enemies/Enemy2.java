@@ -19,7 +19,7 @@ public class Enemy2 extends Enemy{
         // métodos
         public void drawShape(){
             if(isStateTrue(ACTIVE)){
-                GameLib.drawDiamond(getX(), getY(), ENEMY2_RADIUS);
+                GameLib.drawDiamond(getX(), getY(), getRadius());
             }
         }
 

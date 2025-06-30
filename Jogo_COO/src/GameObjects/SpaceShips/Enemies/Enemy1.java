@@ -18,7 +18,7 @@ public class Enemy1 extends Enemy{
         // métodos
         public void drawShape(){
             if(isStateTrue(ACTIVE)){
-                GameLib.drawCircle(getX(), getY(), ENEMY1_RADIUS);
+                GameLib.drawCircle(getX(), getY(), getRadius());
             }
         }
 

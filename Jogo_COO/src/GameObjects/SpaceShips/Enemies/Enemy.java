@@ -7,14 +7,14 @@ import GameObjects.SpaceShips.Player;
 
 // inimigo
 public abstract class Enemy extends SpaceShip implements CollideWithPlayer{
-    protected int type; // tipo 1 ou 2
+    //protected int type; // tipo 1 ou 2
     protected double v; // velocidade escalar
     protected double angle; // angulo da direcao
     protected double vr; // velocidade rotacao
 
     // construtor
     public Enemy(int type, double x, double y, double escalarVelocity, double angle, double velocityRotation, double radius, double damage, int healthPoints){
-        this.type = type;
+        //this.type = type;
         this.x = x;
         this.y = y;
         this.v = escalarVelocity;
@@ -32,7 +32,7 @@ public abstract class Enemy extends SpaceShip implements CollideWithPlayer{
 
     @Override
     public void colideWithPlayer(Player player) {
-        if(isStateTrue(ACTIVE) && checkerCollider.checkCollision(getX(), getY(), radius, player.getX(), player.getY(), player.getRadius())) {
+        if(isStateTrue(ACTIVE) && player.isStateTrue(ACTIVE) && checkerCollider.checkCollision(getX(), getY(), radius, player.getX(), player.getY(), player.getRadius())) {
             player.hit(PLAYER_EXPLOSION_DURATION);
             explode(System.currentTimeMillis(), System.currentTimeMillis() + ENEMY_EXPLOSION_DURATION);
         }
@@ -53,5 +53,5 @@ public abstract class Enemy extends SpaceShip implements CollideWithPlayer{
     public double getEscalarVelocity(){return v;}
     public double getAngle(){return angle;}
     public double getRotationVelocity(){return vr;}
-    public int getType(){return type;}
+    //public int getType(){return type;}
 }

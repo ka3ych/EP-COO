@@ -28,7 +28,7 @@ public abstract class SpaceShip extends GameObject{
                 double alpha = (System.currentTimeMillis()- getExplosionStart()) / (getExplosionEnd() - getExplosionStart());
                 GameLib.drawExplosion(getX(), getY(), alpha);
             }
-            else if(isStateTrue(ACTIVE)){
+            else{
                 super.draw();
             }
         }
