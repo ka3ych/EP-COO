@@ -98,7 +98,7 @@ public class Boss1 extends Boss{
             
             enemyProjectiles.add(proj);
             colideComPlayer.add(proj);
-            setNextShoot((long)(System.currentTimeMillis() + 1000));
+            setNextShoot((long)(System.currentTimeMillis() + 1500));
             //System.out.println(proj.getX() + " " + proj.getY() + " " + getX() + " " + getY());
         }
     }

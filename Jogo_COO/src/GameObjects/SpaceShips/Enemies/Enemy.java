@@ -36,7 +36,7 @@ public abstract class Enemy extends SpaceShip implements CollideWithPlayer{
     public void colideWithPlayer(Player player) {
         if(isStateTrue(ACTIVE) && player.isStateTrue(ACTIVE) && checkerCollider.checkCollision(getX(), getY(), radius, player.getX(), player.getY(), player.getRadius())) {
             player.hit(PLAYER_EXPLOSION_DURATION);
-            explode(System.currentTimeMillis(), System.currentTimeMillis() + ENEMY_EXPLOSION_DURATION);
+            hit(ENEMY_EXPLOSION_DURATION);
         }
     }
     
