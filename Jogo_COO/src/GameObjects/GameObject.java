@@ -24,6 +24,9 @@ public abstract class GameObject{
     public static final double PROJECTILE_RADIUS = 2.0;
     public static final double COLLISION_FACTOR = 0.8;
 
+    // Constante para o raio dos power-ups
+    public static final double POWERUP_RADIUS = 20.0; 
+
     // atributos
     protected double x, y; // Posição
     protected double radius; // raio/tamanho de um GameObject

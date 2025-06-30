@@ -8,12 +8,13 @@ import java.util.Random;
 import GameLib.GameLib;
 import GameObjects.BackgroundObjects.*;
 import GameObjects.Colliders.CollideWithPlayer;
+import GameObjects.PowerUps.ShieldPowerUp;
+import GameObjects.PowerUps.base.PowerUp;
 import GameObjects.SpaceShips.*;
 import GameObjects.SpaceShips.Enemies.*;
 import GameObjects.Projectiles.*;
 import GameObjects.SpaceShips.Enemies.Bosses.*;
-
-
+import GameObjects.PowerUps.TripleShotPowerUp;
 
 /***********************************************************************/
 /*                                                                     */
@@ -79,6 +80,8 @@ public class Main {
        	double background1_speed = 0.070; // velocidade do background
         double background2_speed = 0.045; // velocidade do background distante
 
+        long nextPowerUpSpawn = currentTime + 10000; // O 1º power-up aparece após 10 segundos
+
         /* coleções */
 
         List<PlayerProjectile> playerProjectiles = new ArrayList<>(); // Projéteis do jogador
@@ -90,6 +93,7 @@ public class Main {
         List<CollideWithPlayer> colideComPlayer = new ArrayList<>(); // Lista de objetos que colidem com o player
         List<Stars> background1 = new ArrayList<>(); // Estrelas de fundo próximo
         List<Stars> background2 = new ArrayList<>(); // Estrelas de fundo distante
+        List<PowerUp> powerUps = new ArrayList<>(); // lista para os power-ups
         
 		/* inicializações das estrelas que formam os fundos*/
 
@@ -150,6 +154,13 @@ public class Main {
                 for(CollideWithPlayer ccp : colideComPlayer){
                     ccp.colideWithPlayer(player);
                 }
+
+                // Colisão do player com power-ups
+                for(PowerUp pu : powerUps){
+                    if(pu.isStateTrue(ACTIVE)){
+                        pu.colideWithPlayer(player);
+                    }
+                }
             }
             
 			/* colisões projeteis (player) - inimigos */
@@ -166,6 +177,27 @@ public class Main {
             /****************************/
 			/* Atualizações de estados */
             /****************************/
+
+            // Atualiza o estado do player (para os efeitos dos power-ups)
+            player.update(currentTime);
+
+            // NOVA: Atualização e remoção de power-ups
+            Iterator<PowerUp> powerUpIter = powerUps.iterator();
+            while(powerUpIter.hasNext()){
+                PowerUp pu = powerUpIter.next();
+
+                if(pu.isStateTrue(ACTIVE)){
+                    pu.move(delta); // Move o power-up
+
+                    // Verifica se o power-up saiu da tela ou expirou
+                    if(pu.getY() > GameLib.HEIGHT + 10 || (currentTime - pu.getSpawnTime()) > pu.getLifespan()){
+                        powerUpIter.remove();
+                    }
+                } else if (pu.isStateTrue(INACTIVE)) {
+                    // Power-up foi coletado, remove da lista
+                    powerUpIter.remove();
+                }
+            }
             
 			/* projeteis (player) */
 
@@ -324,6 +356,35 @@ public class Main {
             if(!player.isStateTrue(ACTIVE) && currentTime > player.getExplosionEnd()){
                 player.activate(delta);
             }
+
+            // Simulando o lançamento de Power-ups (simulado como um inimigo)
+            if (currentTime > nextPowerUpSpawn) {
+                int type = rand.nextInt(2); 
+
+                PowerUp newPowerUp;
+                if (type == 0) {
+                    newPowerUp = new ShieldPowerUp(
+                        rand.nextDouble() * (GameLib.WIDTH - 20.0) + 10.0,
+                        -10.0,
+                        0.0, // vx
+                        0.05, // vy (velocidade mais lenta)
+                        15000 // lifespan
+                    );
+
+                } else { 
+                    newPowerUp = new TripleShotPowerUp(
+                       rand.nextDouble() * (GameLib.WIDTH - 20.0) + 10.0,
+                       -10.0,
+                       -0.05 + rand.nextDouble() * 0.1, // Pequeno movimento lateral
+                       0.08, // vy um pouco mais rápido
+                       15000 // lifespan 
+                    );
+
+                }
+
+                powerUps.add(newPowerUp);
+                nextPowerUpSpawn = currentTime + 5000 + rand.nextInt(5000); // Próximo power-up em 5-10 segundos
+            }
             
 			/********************************************/
 			/* Verificando entrada do usuário (teclado) */
@@ -339,17 +400,8 @@ public class Main {
                 // disparo
                 if(GameLib.iskeyPressed(GameLib.KEY_CONTROL)) {
 
-                    if(currentTime > player.getNextShoot()){
-
-                        PlayerProjectile p = new PlayerProjectile(
-                            player.getX(),
-                            player.getY() - 2 * PLAYER_RADIUS,
-                            0.0,
-                            -1.0
-                        );
-
-                        playerProjectiles.add(p);
-                        player.shoot(currentTime);
+                    if(currentTime > player.getNextShoot()){    
+                        player.shoot(currentTime, playerProjectiles);
                     }    
                 }
             }
@@ -395,6 +447,11 @@ public class Main {
             /* desenhando inimigos*/
             for(Enemy e : enemies){
                 e.draw();
+            }
+
+            // Desenhando os Power-ups
+            for(PowerUp pu : powerUps){
+                pu.draw();
             }
             
 			/* chamada a display() da classe GameLib atualiza o desenho exibido pela interface do jogo. */

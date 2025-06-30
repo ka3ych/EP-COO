@@ -142,6 +142,36 @@ public class GameLib {
 		GameLib.drawCircle(x, y, alpha * alpha * 40);
 		GameLib.drawCircle(x, y, alpha * alpha * 40 + 1);
 	}
+
+	public static void drawText(String text, double x, double y){
+        g.setFont(g.getFont().deriveFont(12.0f)); // Exemplo: tamanho 12f
+
+        // Calcula o ponto de desenho para centralizar o texto (opcional, mas bom para power-ups)
+        // FontMetrics para medir o texto
+        java.awt.FontMetrics metrics = g.getFontMetrics(g.getFont());
+        int textWidth = metrics.stringWidth(text);
+        //int textHeight = metrics.getHeight();
+        int ascent = metrics.getAscent();
+
+        // Ajusta x e y para centralizar o texto no ponto dado (cx, cy)
+        // Se você quer que o ponto (x,y) seja o canto superior esquerdo, use apenas (int) Math.round(x), (int) Math.round(y + ascent)
+        int drawX = (int) Math.round(x - textWidth / 2.0);
+        int drawY = (int) Math.round(y + ascent / 2.0); // Ajuste para centralizar verticalmente na altura da fonte
+
+        g.drawString(text, drawX, drawY);
+    }
+
+	public static boolean checkCollision(double x1, double y1, double r1, double x2, double y2, double r2) {
+		// Você precisará definir COLLISION_FACTOR.
+		// Ele pode ser uma constante aqui no GameLib ou em GameConstants.
+		// Se estiver em GameConstants, você precisará importar game.constants.GameConstants;
+		final double COLLISION_FACTOR = 0.8; // Exemplo: ou use GameConstants.COLLISION_FACTOR
+	
+		double dx = x1 - x2;
+		double dy = y1 - y2;
+		double dist = Math.sqrt(dx * dx + dy * dy); // Cálculo da distância entre os centros
+		return dist < (r1 + r2) * COLLISION_FACTOR; // Verifica se a distância é menor que a soma dos raios (com fator de ajuste)
+	}
 	
 	public static void fillRect(double cx, double cy, double width, double height){
 		
