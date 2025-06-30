@@ -30,8 +30,7 @@ public class Main {
 
     public static final int INACTIVE = 0;
     public static final int ACTIVE = 1;
-    public static final int INVINCIBLE = 2;
-    public static final int EXPLODING = 3;
+    public static final int EXPLODING = 2;
     
     
     /* constantes para temporização e duração de explosões    */
@@ -330,7 +329,7 @@ public class Main {
 			/* Verificando entrada do usuário (teclado) */
 			/********************************************/
 			
-            if(player.isStateTrue(ACTIVE) || player.isStateTrue(INVINCIBLE)){
+            if(player.isStateTrue(ACTIVE)){
                 // movimentação do player
                 if(GameLib.iskeyPressed(GameLib.KEY_UP)) player.moveY(-1 * delta * PLAYER_INITIAL_VELOCITY); ;
                 if(GameLib.iskeyPressed(GameLib.KEY_DOWN)) player.moveY(delta * PLAYER_INITIAL_VELOCITY);

@@ -3,8 +3,6 @@ import GameLib.GameLib;
 import java.awt.Color;
 
 public class Player extends SpaceShip{
-    double invincibleTime = 2000;
-    double timePassed = 0;
     // construtor do Player
     public Player(double x, double y, long nextShoot){
         this.x = x;
@@ -26,18 +24,7 @@ public class Player extends SpaceShip{
     public void shoot(long time){nextShoot = time + 100;}
 
     public void activate(long time){
-        if(isStateTrue(EXPLODING)) state = INVINCIBLE;
-
-        if(timePassed >= invincibleTime){
-            timePassed = 0;
-            revive();
-        }
-        else timePassed += time;
-    }
-
-    public void revive(){
-        this.healthPoints = 1;
-        this.state = ACTIVE;
+        state = ACTIVE;
     }
 
     public void outOfBounds(){
@@ -49,11 +36,6 @@ public class Player extends SpaceShip{
 
     public void drawShape(){
         GameLib.drawPlayer(getX(), getY(), getRadius()); 
-
-        if(isStateTrue(INVINCIBLE)){
-            GameLib.setColor(Color.YELLOW);
-            GameLib.drawCircle(getX(), getY(), getRadius() + 5);
-        }
     }
     
 }
