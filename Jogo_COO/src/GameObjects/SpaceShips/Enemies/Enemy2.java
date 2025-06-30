@@ -12,7 +12,7 @@ public class Enemy2 extends Enemy{
 
         // construtor
         public Enemy2(double x, double y, double escalarVelocity, double angle, double velocityRotation){
-            super(2, x, y, escalarVelocity, angle, velocityRotation, ENEMY2_RADIUS, 1.0, 1);
+            super(x, y, escalarVelocity, angle, velocityRotation, ENEMY2_RADIUS, 1.0, 1, 20);
             color = Color.MAGENTA; // cor do inimigo tipo 2
         }
 

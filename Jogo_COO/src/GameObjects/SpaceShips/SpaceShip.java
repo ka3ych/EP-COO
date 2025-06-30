@@ -7,6 +7,8 @@ public abstract class SpaceShip extends GameObject{
         // atributos
         protected long nextShoot; // proximo momento permitido para disparo
         protected double explosionStart, explosionEnd; // tempo de explosão
+        protected double healthBarSize; // tamanho da barra de vida do objeto
+        protected int initialHealth; // vida inicial do objeto
 
         // métodos
         public void hit(long explosionDuration) {
@@ -37,4 +39,6 @@ public abstract class SpaceShip extends GameObject{
         public long getNextShoot() {return nextShoot;}
         public double getExplosionStart() {return explosionStart;}
         public double getExplosionEnd() {return explosionEnd;}
+        public double getHealthBarSize() {return healthBarSize;}
+        public int getInitialHealth() {return initialHealth;}
     }

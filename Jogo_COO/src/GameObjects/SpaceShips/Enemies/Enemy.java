@@ -13,7 +13,7 @@ public abstract class Enemy extends SpaceShip implements CollideWithPlayer{
     protected double vr; // velocidade rotacao
 
     // construtor
-    public Enemy(int type, double x, double y, double escalarVelocity, double angle, double velocityRotation, double radius, double damage, int healthPoints){
+    public Enemy(double x, double y, double escalarVelocity, double angle, double velocityRotation, double radius, double damage, int healthPoints, double healthBarSize) {
         //this.type = type;
         this.x = x;
         this.y = y;
@@ -24,6 +24,8 @@ public abstract class Enemy extends SpaceShip implements CollideWithPlayer{
         this.radius = radius;
         this.damage = damage;
         this.healthPoints = healthPoints;
+        this.healthBarSize = healthBarSize;
+        this.initialHealth = healthPoints;
     }
 
     // métodos

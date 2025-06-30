@@ -11,7 +11,7 @@ import GameObjects.Projectiles.EnemyProjectile;
 public class Enemy1 extends Enemy{
         // construtor
         public Enemy1(double x, double y, double escalarVelocity, double angle, double velocityRotation){
-            super(1, x, y, escalarVelocity, angle, velocityRotation, ENEMY1_RADIUS, 1.0, 1);
+            super(x, y, escalarVelocity, angle, velocityRotation, ENEMY1_RADIUS, 1.0, 1, 20);
             color = Color.CYAN; // cor do inimigo tipo 1
         }
 

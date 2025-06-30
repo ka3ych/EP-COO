@@ -14,7 +14,9 @@ public class Player extends SpaceShip{
         this.radius = PLAYER_RADIUS;
         this.damage = 1.0;
         this.healthPoints = 1;
+        initialHealth = healthPoints;
         color = Color.BLUE; // cor do player
+        this.healthBarSize = 20; // tamanho da barra de vida do player
     }
 
     public void moveX(double varX){this.x += varX;}

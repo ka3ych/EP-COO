@@ -12,6 +12,11 @@ public class Stars extends BackgroundObject {
         this.color = color; // cor das estrelas
     }
 
+    public void draw(double background_count){
+        GameLib.setColor(getColor());
+        drawShape(background_count);
+    }
+
     public void drawShape(double background_count){
         double yPos = (getY() + background_count) % GameLib.HEIGHT;
         GameLib.fillRect(getX(), yPos, 3, 3);

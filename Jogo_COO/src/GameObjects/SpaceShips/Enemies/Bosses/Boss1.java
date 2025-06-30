@@ -3,14 +3,14 @@ package GameObjects.SpaceShips.Enemies.Bosses;
 import java.awt.Color;
 import java.util.List;
 import java.util.Random;
+
 import GameObjects.Colliders.CollideWithPlayer;
 import GameLib.GameLib;
 import GameObjects.Projectiles.EnemyProjectile;
-import GameObjects.SpaceShips.Enemies.Enemy;
 import GameObjects.SpaceShips.Player;
 
 
-public class Boss1 extends Enemy{
+public class Boss1 extends Boss{
     public static final double HEALTH_BAR_SIZE = 20.0;
     public static final int INITIAL_HEALTH = 10;
     public static final double BOSS1_RADIUS = 20.0;
@@ -24,17 +24,14 @@ public class Boss1 extends Enemy{
 
     // construtor
     public Boss1(double x, double y, double escalarVelocity, double angle, double velocityRotation){
-        super(1, x, y, escalarVelocity, angle, velocityRotation, BOSS1_RADIUS, 1.0, INITIAL_HEALTH);
+        super(x, y, escalarVelocity, angle, velocityRotation, BOSS1_RADIUS, 1.0, INITIAL_HEALTH, HEALTH_BAR_SIZE);
         color = Color.RED; // cor do inimigo tipo 1
     }
 
     // métodos
     public void drawShape(){
         GameLib.drawCircle(getX(), getY(), getRadius());
-        GameLib.setColor(Color.GREEN);
-        GameLib.drawLine(getX()-HEALTH_BAR_SIZE/2, getY()-getRadius()-5, (getX()-HEALTH_BAR_SIZE/2)+HEALTH_BAR_SIZE*((double)healthPoints/INITIAL_HEALTH), getY()-getRadius()-5);
-        GameLib.setColor(Color.RED);
-        GameLib.drawLine((getX()-HEALTH_BAR_SIZE/2)+HEALTH_BAR_SIZE*((double)healthPoints/INITIAL_HEALTH), getY()-getRadius()-5, (getX()-HEALTH_BAR_SIZE/2)+HEALTH_BAR_SIZE, getY()-getRadius()-5);
+        healthBar.drawShape();
     }
 
     public void moveAndDirection(long time){
