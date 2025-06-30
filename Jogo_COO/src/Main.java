@@ -13,7 +13,7 @@ import GameObjects.PowerUps.base.PowerUp;
 import GameObjects.SpaceShips.*;
 import GameObjects.SpaceShips.Enemies.*;
 import GameObjects.Projectiles.*;
-
+import GameObjects.SpaceShips.Enemies.Bosses.*;
 import GameObjects.PowerUps.TripleShotPowerUp;
 
 /***********************************************************************/
@@ -32,6 +32,7 @@ public class Main {
     public static final int INACTIVE = 0;
     public static final int ACTIVE = 1;
     public static final int EXPLODING = 2;
+    
     
     /* constantes para temporização e duração de explosões    */
     public static final long PLAYER_EXPLOSION_DURATION = 2000;
@@ -70,6 +71,8 @@ public class Main {
         /* variaveis para controle do jogo */
         long nextEnemy1 = currentTime + 2000;    // Próxima geração de inimigo tipo 1
         long nextEnemy2 = currentTime + 7000;     // Próxima geração de inimigo tipo 2
+        boolean bossHasSpawned = false; // Flag para controle de boss
+        long bossSpawnTime = 20000; // Tempo de spawn do boss
         double enemy2_spawnX = GameLib.WIDTH * 0.20; // Posição X de spawn do tipo 2
         int enemy2_count = 0;                    // Contador para formação de inimigos
         double background1_count = 0.0;           // Contador de animação do fundo 1
@@ -86,6 +89,7 @@ public class Main {
         List<Enemy> enemies = new ArrayList<>(); // Todos os inimigos>
         List<Enemy1> enemies1 = new ArrayList<>(); // Inimigos tipo 1
         List<Enemy2> enemies2 = new ArrayList<>(); // Inimigos
+        List<Boss1> bosses1 = new ArrayList<>(); // Lista de bosses
         List<CollideWithPlayer> colideComPlayer = new ArrayList<>(); // Lista de objetos que colidem com o player
         List<Stars> background1 = new ArrayList<>(); // Estrelas de fundo próximo
         List<Stars> background2 = new ArrayList<>(); // Estrelas de fundo distante
@@ -259,6 +263,7 @@ public class Main {
                     e.shoot(enemyProjectiles, colideComPlayer);
                 }
             }
+            
 
             Iterator<Enemy2> enemy2Iter = enemies2.iterator();
             while(enemy2Iter.hasNext()){
@@ -266,6 +271,15 @@ public class Main {
                 
                 if(e.isStateTrue(ACTIVE)) {
                     e.shoot(enemyProjectiles, colideComPlayer);
+                }
+            }
+
+            Iterator<Boss1> boss1Iter = bosses1.iterator();
+            while(boss1Iter.hasNext()){
+                Boss1 b = boss1Iter.next();
+                
+                if(b.isStateTrue(ACTIVE)) {
+                    b.shoot(enemyProjectiles, colideComPlayer, player);
                 }
             }
             
@@ -319,10 +333,28 @@ public class Main {
                 }
             }
 
+            if(currentTime > bossSpawnTime && !bossHasSpawned) {
+                // Spawn do boss
+                Boss1 boss1 = new Boss1(
+                    GameLib.WIDTH / 6,
+                    GameLib.HEIGHT * 0.5,
+                    0.15,
+                    (3 * Math.PI) / 2,
+                    0.0
+                );
+                
+                enemies.add(boss1);
+                bosses1.add(boss1);
+                colideComPlayer.add(boss1);
+                bossHasSpawned = true;
+            }
+
+            
+
 			/* Verificando se a explosão do player já acabou.         */
 			/* Ao final da explosão, o player volta a ser controlável */
-            if(player.isStateTrue(EXPLODING) && currentTime > player.getExplosionEnd()){
-                player.activate();
+            if(!player.isStateTrue(ACTIVE) && currentTime > player.getExplosionEnd()){
+                player.activate(delta);
             }
 
             // Simulando o lançamento de Power-ups (simulado como um inimigo)
@@ -358,7 +390,7 @@ public class Main {
 			/* Verificando entrada do usuário (teclado) */
 			/********************************************/
 			
-            if(player.isStateTrue(ACTIVE)) {
+            if(player.isStateTrue(ACTIVE)){
                 // movimentação do player
                 if(GameLib.iskeyPressed(GameLib.KEY_UP)) player.moveY(-1 * delta * PLAYER_INITIAL_VELOCITY); ;
                 if(GameLib.iskeyPressed(GameLib.KEY_DOWN)) player.moveY(delta * PLAYER_INITIAL_VELOCITY);

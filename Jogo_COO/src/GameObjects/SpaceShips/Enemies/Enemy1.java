@@ -3,22 +3,22 @@ package GameObjects.SpaceShips.Enemies;
 import java.awt.Color;
 import java.util.List;
 import java.util.Random;
-import GameObjects.Colliders.*;
+import GameObjects.Colliders.CollideWithPlayer;
 import GameLib.GameLib;
-import GameObjects.Projectiles.*;
+import GameObjects.Projectiles.EnemyProjectile;
 
 
 public class Enemy1 extends Enemy{
         // construtor
         public Enemy1(double x, double y, double escalarVelocity, double angle, double velocityRotation){
-            super(1, x, y, escalarVelocity, angle, velocityRotation, ENEMY1_RADIUS, 1.0, 1);
+            super(x, y, escalarVelocity, angle, velocityRotation, ENEMY1_RADIUS, 1.0, 1, 20);
             color = Color.CYAN; // cor do inimigo tipo 1
         }
 
         // métodos
         public void drawShape(){
             if(isStateTrue(ACTIVE)){
-                GameLib.drawCircle(getX(), getY(), ENEMY1_RADIUS);
+                GameLib.drawCircle(getX(), getY(), getRadius());
             }
         }
 

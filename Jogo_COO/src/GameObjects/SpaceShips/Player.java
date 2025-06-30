@@ -25,11 +25,12 @@ public class Player extends SpaceShip{
         this.radius = PLAYER_RADIUS;
         this.damage = 1.0;
         this.healthPoints = 1;
+        initialHealth = healthPoints;
         color = Color.BLUE; // cor do player
-        
+        this.healthBarSize = 20; // tamanho da barra de vida do player
         this.hasShield = false;
         this.shieldEndTime = 0;
-
+      
         // Inicializa o novo atributo de disparo duplo
         this.hasTripleShot = false;
         this.TripleShotEndTime = 0;
@@ -55,7 +56,9 @@ public class Player extends SpaceShip{
 
     public void shoot(long time){nextShoot = time + 100;}
 
-    public void activate(){state = ACTIVE;}
+    public void activate(long time){
+        state = ACTIVE;
+    }
 
     public void outOfBounds(){
         if(this.getX() < 0.0) this.x = 0.0;
@@ -140,7 +143,7 @@ public class Player extends SpaceShip{
     
     @Override
     public void drawShape(){
-        GameLib.drawPlayer(getX(), getY(), PLAYER_RADIUS); 
+        GameLib.drawPlayer(getX(), getY(), getRadius()); 
     }
     
     @Override
