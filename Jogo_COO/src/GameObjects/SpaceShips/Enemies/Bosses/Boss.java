@@ -13,4 +13,8 @@ public abstract class Boss extends Enemy{
         super(x, y, escalarVelocity, angle, velocityRotation, radius, damage, healthPoints, healthBarSize);
         this.initialHealth = healthPoints;
     }
+        public void setVida(int vida) {
+        this.healthPoints = vida;
+        this.initialHealth = vida; // importante manter proporção correta na barra
+    }
 }

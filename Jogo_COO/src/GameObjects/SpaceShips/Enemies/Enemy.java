@@ -51,6 +51,18 @@ public abstract class Enemy extends SpaceShip implements CollideWithPlayer{
     public void setAngle(double angle) {this.angle = angle;}
     public void setVelocityRotation(double vr) {this.vr = vr;}
 
+    
+    // setter de vida
+    public void setVida(int vida) {
+        this.healthPoints = vida;
+        this.initialHealth = vida;
+    }
+
+    // getter de vida
+    public int getVida() {
+        return this.healthPoints;
+    }
+
     // getters
     public double getEscalarVelocity(){return v;}
     public double getAngle(){return angle;}

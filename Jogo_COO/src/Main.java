@@ -3,6 +3,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 // Pacotes criados por nós
 import GameLib.GameLib;
@@ -51,7 +54,21 @@ public class Main {
     public static void busyWait(long time){
         while(System.currentTimeMillis() < time) Thread.yield();
     }
-    
+
+    // para carregar as fases
+    private static List<String[]> carregarConfiguracoes(String arquivoFase) throws IOException {
+    List<String[]> eventos = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(arquivoFase))) {
+        String linha;
+        while ((linha = reader.readLine()) != null) {
+            if (linha.trim().isEmpty()) continue;
+            String[] partes = linha.split(" ");
+            eventos.add(partes);
+        }
+    }
+    return eventos;
+}
+
 	/* Método principal */
     public static void main(String [] args) {
 
@@ -72,7 +89,7 @@ public class Main {
         long nextEnemy1 = currentTime + 2000;    // Próxima geração de inimigo tipo 1
         long nextEnemy2 = currentTime + 7000;     // Próxima geração de inimigo tipo 2
         boolean bossHasSpawned = false; // Flag para controle de boss
-        long bossSpawnTime = 20000; // Tempo de spawn do boss
+        //long bossSpawnTime = 20000; Tempo de spawn do boss trocado para carregar as fases
         double enemy2_spawnX = GameLib.WIDTH * 0.20; // Posição X de spawn do tipo 2
         int enemy2_count = 0;                    // Contador para formação de inimigos
         double background1_count = 0.0;           // Contador de animação do fundo 1
@@ -83,6 +100,15 @@ public class Main {
         long nextPowerUpSpawn = currentTime + 10000; // O 1º power-up aparece após 10 segundos
 
         /* coleções */
+        List<String[]> eventosDaFase = new ArrayList<>();
+        int proximoEvento = 0;
+
+        try{
+        eventosDaFase = carregarConfiguracoes("fase1.txt");
+        }catch (IOException e){
+            System.out.println("Erro ao carregar a fase: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         List<PlayerProjectile> playerProjectiles = new ArrayList<>(); // Projéteis do jogador
         List<EnemyProjectile> enemyProjectiles = new ArrayList<>(); // Projéteis inimigos
@@ -145,6 +171,50 @@ public class Main {
 
             currentTime = System.currentTimeMillis();
             
+            // processa as coisas programadas na fase
+            while (proximoEvento < eventosDaFase.size()) {
+                String[] evento = eventosDaFase.get(proximoEvento);
+                String tipo = evento[0];
+                int tempo = Integer.parseInt(evento[2]);
+
+                if (currentTime < tempo) break;
+
+                if ("INIMIGO".equalsIgnoreCase(tipo)) {
+                    int tipoInimigo = Integer.parseInt(evento[1]);
+                    double x = Double.parseDouble(evento[3]);
+                    double y = Double.parseDouble(evento[4]);
+
+                    if (tipoInimigo == 1) {
+                        Enemy1 e = new Enemy1(x, y, 0.2, (3 * Math.PI) / 2, 0.0);
+                        e.setNextShoot(currentTime + 500);
+                        enemies.add(e);
+                        enemies1.add(e);
+                        colideComPlayer.add(e);
+                    } else if (tipoInimigo == 2) {
+                        Enemy2 e = new Enemy2(x, y, 0.42, (3 * Math.PI) / 2, 0.0);
+                        enemies.add(e);
+                        enemies2.add(e);
+                        colideComPlayer.add(e);
+                    }
+                } else if ("CHEFE".equalsIgnoreCase(tipo)) {
+                    int tipoChefe = Integer.parseInt(evento[1]);
+                    int vida = Integer.parseInt(evento[2]);
+                    double x = Double.parseDouble(evento[4]);
+                    double y = Double.parseDouble(evento[5]);
+
+                    if (tipoChefe == 1) {
+                        Boss1 boss = new Boss1(x, y, 0.15, (3 * Math.PI) / 2, 0.0);
+                        boss.setVida(vida); // Assumindo método setVida existe
+                        enemies.add(boss);
+                        bosses1.add(boss);
+                        colideComPlayer.add(boss);
+                    }
+                }
+
+                proximoEvento++;
+            }
+
+
             /***************************/
             /* Verificação de colisões */
             /***************************/
@@ -333,7 +403,7 @@ public class Main {
                 }
             }
 
-            if(currentTime > bossSpawnTime && !bossHasSpawned) {
+            /*if(currentTime > bossSpawnTime && !bossHasSpawned) {
                 // Spawn do boss
                 Boss1 boss1 = new Boss1(
                     GameLib.WIDTH / 6,
@@ -347,7 +417,7 @@ public class Main {
                 bosses1.add(boss1);
                 colideComPlayer.add(boss1);
                 bossHasSpawned = true;
-            }
+            }*/
 
             
 
