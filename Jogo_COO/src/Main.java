@@ -3,9 +3,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+// import java.io.BufferedReader;
+// import java.io.FileReader;
+// import java.io.IOException;
 
 // Pacotes criados por nós
 import GameLib.GameLib;
+import GameObjects.GameManager;
 import GameObjects.BackgroundObjects.*;
 import GameObjects.Colliders.CollideWithPlayer;
 import GameObjects.PowerUps.ShieldPowerUp;
@@ -51,9 +55,25 @@ public class Main {
     public static void busyWait(long time){
         while(System.currentTimeMillis() < time) Thread.yield();
     }
-    
+
+    // para carregar as fases
+    // private static List<String[]> carregarConfiguracoes(String arquivoFase) throws IOException {
+    // List<String[]> eventos = new ArrayList<>();
+    // try (BufferedReader reader = new BufferedReader(new FileReader(arquivoFase))) {
+    //     String linha;
+    //     while ((linha = reader.readLine()) != null) {
+    //         if (linha.trim().isEmpty()) continue;
+    //         String[] partes = linha.split(" ");
+    //         eventos.add(partes);
+    //     }
+    // }
+    // return eventos;
+    // }
+
 	/* Método principal */
     public static void main(String [] args) {
+
+        
 
         /* Indica que o jogo está em execução */
 
@@ -64,17 +84,8 @@ public class Main {
         long delta;
         long currentTime = System.currentTimeMillis();
 
-		/* variáveis do player */
-
-        Player player = new Player(GameLib.WIDTH / 2, GameLib.HEIGHT * 0.90, currentTime);
 
         /* variaveis para controle do jogo */
-        long nextEnemy1 = currentTime + 2000;    // Próxima geração de inimigo tipo 1
-        long nextEnemy2 = currentTime + 7000;     // Próxima geração de inimigo tipo 2
-        boolean bossHasSpawned = false; // Flag para controle de boss
-        long bossSpawnTime = 20000; // Tempo de spawn do boss
-        double enemy2_spawnX = GameLib.WIDTH * 0.20; // Posição X de spawn do tipo 2
-        int enemy2_count = 0;                    // Contador para formação de inimigos
         double background1_count = 0.0;           // Contador de animação do fundo 1
         double background2_count = 0.0;           // Contador de animação do fundo 2
        	double background1_speed = 0.070; // velocidade do background
@@ -84,12 +95,16 @@ public class Main {
 
         /* coleções */
 
+        //List<String[]> eventosDaFase = new ArrayList<>();
         List<PlayerProjectile> playerProjectiles = new ArrayList<>(); // Projéteis do jogador
         List<EnemyProjectile> enemyProjectiles = new ArrayList<>(); // Projéteis inimigos
         List<Enemy> enemies = new ArrayList<>(); // Todos os inimigos>
         List<Enemy1> enemies1 = new ArrayList<>(); // Inimigos tipo 1
         List<Enemy2> enemies2 = new ArrayList<>(); // Inimigos
-        List<Boss1> bosses1 = new ArrayList<>(); // Lista de bosses
+        List<Boss> bosses = new ArrayList<>(); // Lista de bosses do tipo 1
+        List<Boss1> bosses1 = new ArrayList<>(); // Lista de bosses do tipo 1
+        List<Boss2> bosses2 = new ArrayList<>(); // Lista de bosses do tipo 2
+        List<Boss3> bosses3 = new ArrayList<>(); // Lista de bosses do tipo 3
         List<CollideWithPlayer> colideComPlayer = new ArrayList<>(); // Lista de objetos que colidem com o player
         List<Stars> background1 = new ArrayList<>(); // Estrelas de fundo próximo
         List<Stars> background2 = new ArrayList<>(); // Estrelas de fundo distante
@@ -107,6 +122,10 @@ public class Main {
             Stars star = new Stars(rand.nextDouble() * GameLib.WIDTH, rand.nextDouble() * GameLib.HEIGHT, Color.DARK_GRAY);
             background2.add(star);
         }
+
+        /* variáveis do player */
+
+        Player player = new Player(GameLib.WIDTH / 2, GameLib.HEIGHT * 0.90, currentTime, colideComPlayer);
                         
 		/* iniciado interface gráfica */
 
@@ -133,18 +152,27 @@ public class Main {
 		/*                                                                                               */
 		/*************************************************************************************************/
         
+        // try{
+        // eventosDaFase = carregarConfiguracoes("Jogo_COO/src/fases/fase1.txt"); // Carrega os eventos da fase a partir do arquivo
+        // }catch (IOException e){
+        //     System.out.println("Erro ao carregar a fase: " + e.getMessage());
+        //     e.printStackTrace();
+        // }
+        GameManager.loadLevel("Jogo_COO/src/fases/fase1.txt"); // Carrega os eventos da fase a partir do arquivo
+
         while(running){
 
 			/* Usada para atualizar o estado dos elementos do jogo    */
 			/* (player, projéteis e inimigos) "delta" indica quantos  */
 			/* ms se passaram desde a última atualização.             */
-
             delta = System.currentTimeMillis() - currentTime;
 
             /* Já a variável "currentTime" nos dá o timestamp atual.  */
-
             currentTime = System.currentTimeMillis();
             
+            // processa as coisas programadas na fase
+            GameManager.checkLevel(enemies1, enemies2, enemies, bosses1, bosses2, bosses3, bosses, colideComPlayer);
+
             /***************************/
             /* Verificação de colisões */
             /***************************/
@@ -274,83 +302,15 @@ public class Main {
                 }
             }
 
-            Iterator<Boss1> boss1Iter = bosses1.iterator();
-            while(boss1Iter.hasNext()){
-                Boss1 b = boss1Iter.next();
+            Iterator<Boss> bossIter = bosses.iterator();
+            while(bossIter.hasNext()){
+                Boss b = bossIter.next();
                 
                 if(b.isStateTrue(ACTIVE)) {
                     b.shoot(enemyProjectiles, colideComPlayer, player);
                 }
             }
             
-			/* verificando se novos inimigos (tipo 1) devem ser "lançados" */
-
-            if(currentTime > nextEnemy1){
-
-                Enemy1 e = new Enemy1(
-                    rand.nextDouble() * (GameLib.WIDTH - 20.0) + 10.0,
-                    -10.0,
-                    0.20 + rand.nextDouble() * 0.15,
-                    (3 * Math.PI) / 2,
-                    0.0
-                );
-                e.setNextShoot(currentTime + 500);
-
-                enemies.add(e);
-                enemies1.add(e);
-                colideComPlayer.add(e);
-                nextEnemy1 = currentTime + 500;
-            }
-            
-			/* verificando se novos inimigos (tipo 2) devem ser "lançados" */
-
-            if(currentTime > nextEnemy2){
-
-                Enemy2 e = new Enemy2(
-                    enemy2_spawnX,
-                    -10.0,
-                    0.42,
-                    (3 * Math.PI) / 2,
-                    0.0
-                );
-
-                enemies.add(e);
-                enemies2.add(e);
-                colideComPlayer.add(e);
-
-                enemy2_count++;
-                
-                // Controle de formação
-                if(enemy2_count < 10){
-
-                    nextEnemy2 = currentTime + 120;
-                }
-                else{
-
-                    enemy2_count = 0;
-                    enemy2_spawnX = rand.nextDouble() > 0.5 ? GameLib.WIDTH * 0.2 : GameLib.WIDTH * 0.8;
-                    nextEnemy2 = (long) (currentTime + 3000 + rand.nextDouble() * 3000);
-                }
-            }
-
-            if(currentTime > bossSpawnTime && !bossHasSpawned) {
-                // Spawn do boss
-                Boss1 boss1 = new Boss1(
-                    GameLib.WIDTH / 6,
-                    GameLib.HEIGHT * 0.5,
-                    0.15,
-                    (3 * Math.PI) / 2,
-                    0.0
-                );
-                
-                enemies.add(boss1);
-                bosses1.add(boss1);
-                colideComPlayer.add(boss1);
-                bossHasSpawned = true;
-            }
-
-            
-
 			/* Verificando se a explosão do player já acabou.         */
 			/* Ao final da explosão, o player volta a ser controlável */
             if(!player.isStateTrue(ACTIVE) && currentTime > player.getExplosionEnd()){

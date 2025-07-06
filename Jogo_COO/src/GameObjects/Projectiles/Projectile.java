@@ -1,5 +1,6 @@
 package GameObjects.Projectiles;
 
+import GameLib.GameLib;
 import GameObjects.GameObject;
 
 
@@ -19,7 +20,10 @@ public abstract class Projectile extends GameObject{
     public void move(long delta){
         x += vx * delta;
         y += vy * delta;
+
+        outOfBounds();
     }
+
 
     // getters
     public double getVelocityX() {return this.vx;}

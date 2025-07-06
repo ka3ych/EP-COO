@@ -143,8 +143,8 @@ public class GameLib {
 		GameLib.drawCircle(x, y, alpha * alpha * 40 + 1);
 	}
 
-	public static void drawText(String text, double x, double y){
-        g.setFont(g.getFont().deriveFont(12.0f)); // Exemplo: tamanho 12f
+	public static void drawText(String text, double x, double y, float size){
+        g.setFont(g.getFont().deriveFont(size)); // Exemplo: tamanho 12f
 
         // Calcula o ponto de desenho para centralizar o texto (opcional, mas bom para power-ups)
         // FontMetrics para medir o texto

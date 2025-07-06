@@ -35,6 +35,8 @@ public class Enemy2 extends Enemy{
             if(previousY < threshold && getY() >= threshold) {
                 changeDirection();
             }
+
+            outOfBounds();
         }
 
         public void getShootPoints(){

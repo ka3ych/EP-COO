@@ -8,6 +8,7 @@ import GameObjects.Colliders.CollideWithPlayer;
 import GameLib.GameLib;
 import GameObjects.Projectiles.EnemyProjectile;
 import GameObjects.SpaceShips.Player;
+import GameObjects.GameManager;
 
 
 public class Boss1 extends Boss{
@@ -17,7 +18,7 @@ public class Boss1 extends Boss{
 
     // atributos
     long timePassed = 0;
-    long changeDirectionTime = 1500; // tempo para mudar direção
+    long changeDirectionTime = 1500; // tempo para mudar direçãos
     double newX, newY;
     int xOrientation = 1; // 1 para direita, -1 para esquerda
     int yOrientation = 1; // 1 para baixo, -1 para cima
@@ -30,8 +31,10 @@ public class Boss1 extends Boss{
 
     // métodos
     public void drawShape(){
-        GameLib.drawCircle(getX(), getY(), getRadius());
-        healthBar.drawShape();
+        if(isStateTrue(ACTIVE)){
+            GameLib.drawCircle(getX(), getY(), getRadius());
+            healthBar.drawShape();
+        } 
     }
 
     public void moveAndDirection(long time){
@@ -71,7 +74,7 @@ public class Boss1 extends Boss{
             }
         }
         else{ 
-            // Escolhe uma posição inicial aleatória
+            // Escolhe uma posição aleatória
             newX = positionsX[rand.nextInt(positionsX.length)];
             newY = positionsY[rand.nextInt(positionsY.length)];
 
@@ -96,10 +99,19 @@ public class Boss1 extends Boss{
                 // Math.sin(getAngle()) * 0.45 * (-1.0)
             );
             
+            proj.setColor(Color.CYAN);
             enemyProjectiles.add(proj);
             colideComPlayer.add(proj);
-            setNextShoot((long)(System.currentTimeMillis() + 1500));
+            setNextShoot((long)(System.currentTimeMillis() + 500));
             //System.out.println(proj.getX() + " " + proj.getY() + " " + getX() + " " + getY());
         }
+    }
+
+    @Override
+    public void explode(double timeExplosionStart, double timeExplosionEnd){
+        state = EXPLODING;
+        this.explosionStart = timeExplosionStart;
+        this.explosionEnd = timeExplosionEnd;
+        GameManager.loadLevel("Jogo_COO/src/fases/fase2.txt");
     }
 }

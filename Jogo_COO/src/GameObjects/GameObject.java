@@ -42,6 +42,10 @@ public abstract class GameObject{
         else return false;
     }
 
+    public void outOfBounds(){
+        if(y > GameLib.HEIGHT || y <= -20) state = INACTIVE;
+    }
+
     public abstract void drawShape(); // desenha a forma do objeto
 
     public void draw(){ // desenha o objeto
