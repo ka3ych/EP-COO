@@ -370,7 +370,9 @@ O código original tinha diversos problemas:
 
 ## 2. Nova estrutura
 
-[IMAGEM DO FLUXOGRAMA]
+![My First Board](https://github.com/user-attachments/assets/38c9fd82-f7df-4c1b-b19f-184c01a0cdd6)
+![My First Board(1)](https://github.com/user-attachments/assets/042b16b8-acce-4665-935d-d94d0cc0f04f)
+
 
 fases:
   Armazena a configuração da fase, levando em consideração as especifidades dadas pelo enunciado do EP.
@@ -378,12 +380,13 @@ fases:
 GameObjects:
 - SpaceShips: Player, Enemy (tipos 1/2), Bosses
   Em 'SpaceShips' os inimigos e o próprios jogador foram interpretados como 'naves', que dividem caracteristicas em comum como por exemplo ter movimentação, explodir e atirar.
-  Player:   [IMAGEM DO PLAYER]
-  Enemy tipo 1:   [IMAGEM DO ENEMY TIPO 1]
-  Enemy tipo 2:   [IMAGEM DO ENEMY TIPO 2]
-  Boss 1:   [IMAGEM DO BOSS 1]
-  Boss 2:   [IMAGEM DO BOSS 2]
-  Boss 3:   [IMAGEM DO BOSS 3]
+  Player:   ![Captura de tela de 2025-07-06 18-55-49](https://github.com/user-attachments/assets/c54cb5a4-9adf-49d9-a696-fed0b02b739d)
+  Enemy tipo 1:   ![Captura de tela de 2025-07-06 18-57-24](https://github.com/user-attachments/assets/5a755098-a662-45e7-95bf-e2a261dec34b)
+  Enemy tipo 2:   ![Captura de tela de 2025-07-06 18-57-30](https://github.com/user-attachments/assets/1b884aea-320b-4efa-846a-f5b78a0e1630)
+  Boss 1:   ![Captura de tela de 2025-07-06 18-59-23](https://github.com/user-attachments/assets/239443fe-c8e2-4759-a591-a93e091ab736)
+  Boss 2:   ![Captura de tela de 2025-07-06 19-00-08](https://github.com/user-attachments/assets/85d13133-e062-49b8-85aa-d3b1174c26db)
+  Boss 3:   ![Captura de tela de 2025-07-06 19-00-41](https://github.com/user-attachments/assets/6390ae59-10fb-4a0e-8a8b-e4db2dd9f215)
+
 
 - Projectiles: PlayerProjectile, EnemyProjectile
   Os projeteis dividem caracteristicas em comum entre si, só que tem a diferença que o do jogador danifica as 'SpaceShips' inimigas e os inimigos danificam a 'SpaceShip' do jogador.
@@ -394,12 +397,15 @@ GameObjects:
 - PowerUps: ShieldPowerUp, TripleShotPowerUp
   Poderes para o jogador conseguir tomar um hit sem morrer ou para que ele atire 3 projeteis ao mesmo tempo.
 
-  [IMAGEM DOS PODERES QUE JÁ ESTÃO NO GITHUB]
+  ![Captura de tela de 2025-07-06 19-02-56](https://github.com/user-attachments/assets/e5c2b824-8b92-4c75-8202-1a0e97378920)
+  ![Captura de tela de 2025-07-06 19-02-08](https://github.com/user-attachments/assets/32be2c53-5087-4069-b42e-4d240bafe84d)
+
 
 - BackgroundObjects: Stars, HealthBar
   Estrelas e barra de vida.
 
-  [IMAGEM DA ESTRELA E BARRA DE VIDA]
+![Captura de tela de 2025-07-06 19-03-44](https://github.com/user-attachments/assets/5af78ca2-6792-4755-8659-2ca037220521)
+
 
 - Colliders: Interface para colisão
   Para as colisões.
