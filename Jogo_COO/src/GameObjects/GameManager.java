@@ -12,9 +12,13 @@ import GameObjects.SpaceShips.Enemies.Enemy1;
 import GameObjects.SpaceShips.Enemies.Enemy2;
 import GameObjects.SpaceShips.Enemies.Bosses.Boss1;
 
-public class GameManager {
-    int proximoEvento = 0;
-    List<String[]> eventosDaFase = new ArrayList<>();
+final public class GameManager {
+    protected static long deltaTime = System.currentTimeMillis();
+    protected static int proximoEvento = 0;
+    protected static long nextEnemy2 = 0;
+    protected static int enemy2_count = 0; // Contador para controlar a formação do inimigo 2 
+
+    protected static List<String[]> eventosDaFase = new ArrayList<>();
 
     private static List<String[]> carregarConfiguracoes(String arquivoFase) throws IOException {
         List<String[]> eventos = new ArrayList<>();
@@ -31,32 +35,42 @@ public class GameManager {
     
     
 
-    public void loadLevel(String fasePath){
+    public static void loadLevel(String fasePath){
         try{
             eventosDaFase = carregarConfiguracoes(fasePath); // Carrega os eventos da fase a partir do arquivo
             System.out.println("Fase carregada com sucesso: " + fasePath);
+            proximoEvento = 0; // Reseta o próximo evento
         }catch (IOException e){
             System.out.println("Erro ao carregar a fase: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    public void checkLevel(List<Enemy1> enemies1, 
+    public static void checkLevel(List<Enemy1> enemies1, 
                     List<Enemy2> enemies2, 
                     List<Boss1> bosses1, 
                     List<Enemy> enemies, 
                     List<CollideWithPlayer> colideComPlayer)
     {
-        System.out.println(eventosDaFase.size() + " eventos na fase.");
+        //System.out.println(eventosDaFase.size() + " eventos na fase.");
             // Processa os eventos até o próximo evento que ainda não ocorreu
         while (proximoEvento < eventosDaFase.size()) {
             String[] evento = eventosDaFase.get(proximoEvento);
             String tipo = evento[0];
-            int tempo = Integer.parseInt(evento[2]);
+            long tempo;
+    
+            if (tipo.equalsIgnoreCase("CHEFE")) {
+                tempo = (long) Integer.parseInt(evento[3]); // Para chefes, o tempo é o terceiro elemento
+            }
+            else{
+                tempo = (long) Integer.parseInt(evento[2]); // Para inimigos, o tempo é o segundo elemento
+            }
 
-            if (System.currentTimeMillis() < tempo) break;
-
-            if ("INIMIGO".equalsIgnoreCase(tipo)) {
+            if (System.currentTimeMillis()-deltaTime < tempo){
+                //System.out.println("Próximo evento ainda não ocorreu: " + tempo);
+                return;
+            }
+            if (tipo.equalsIgnoreCase("INIMIGO")) {
                 int tipoInimigo = Integer.parseInt(evento[1]);
                 double x = Double.parseDouble(evento[3]);
                 double y = Double.parseDouble(evento[4]);
@@ -68,12 +82,28 @@ public class GameManager {
                     enemies1.add(e);
                     colideComPlayer.add(e);
                 } else if (tipoInimigo == 2) {
+                    
+                    // ***** AQUI É ONDE O INIMIGO 2 É CRIADO *****
+                    if(System.currentTimeMillis() < nextEnemy2)return;
+
                     Enemy2 e = new Enemy2(x, y, 0.42, (3 * Math.PI) / 2, 0.0);
                     enemies.add(e);
                     enemies2.add(e);
                     colideComPlayer.add(e);
+
+                    enemy2_count++;
+                    
+                    // Controle de formação
+                    if(enemy2_count < 10){
+                        nextEnemy2 = System.currentTimeMillis() + 120;
+                        //System.out.println("Inimigo 2 criado: " + enemy2_count);
+                        return;
+                    }
+                    else{
+                        enemy2_count = 0;
+                    }
                 }
-            } else if ("CHEFE".equalsIgnoreCase(tipo)) {
+            } else if (tipo.equalsIgnoreCase("CHEFE")) {
                 int tipoChefe = Integer.parseInt(evento[1]);
                 int vida = Integer.parseInt(evento[2]);
                 double x = Double.parseDouble(evento[4]);
@@ -89,6 +119,7 @@ public class GameManager {
             }
 
             proximoEvento++;
+            deltaTime = System.currentTimeMillis(); // Atualiza o tempo do último evento processado
         }
     }
 }

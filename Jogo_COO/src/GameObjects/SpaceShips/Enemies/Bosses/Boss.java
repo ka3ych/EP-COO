@@ -1,11 +1,13 @@
 package GameObjects.SpaceShips.Enemies.Bosses;
 
 import GameObjects.SpaceShips.Enemies.Enemy;
+import GameObjects.GameManager;
 import GameObjects.BackgroundObjects.HealthBar;
 
 public abstract class Boss extends Enemy{
     // atributos
     protected HealthBar healthBar = new HealthBar(this);
+    protected GameManager gameManager;
     
 
     // construtor
@@ -13,7 +15,8 @@ public abstract class Boss extends Enemy{
         super(x, y, escalarVelocity, angle, velocityRotation, radius, damage, healthPoints, healthBarSize);
         this.initialHealth = healthPoints;
     }
-        public void setVida(int vida) {
+
+    public void setVida(int vida) {
         this.healthPoints = vida;
         this.initialHealth = vida; // importante manter proporção correta na barra
     }

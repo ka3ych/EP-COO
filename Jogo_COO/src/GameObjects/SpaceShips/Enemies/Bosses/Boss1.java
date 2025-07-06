@@ -8,6 +8,7 @@ import GameObjects.Colliders.CollideWithPlayer;
 import GameLib.GameLib;
 import GameObjects.Projectiles.EnemyProjectile;
 import GameObjects.SpaceShips.Player;
+import GameObjects.GameManager;
 
 
 public class Boss1 extends Boss{
@@ -101,5 +102,13 @@ public class Boss1 extends Boss{
             setNextShoot((long)(System.currentTimeMillis() + 1500));
             //System.out.println(proj.getX() + " " + proj.getY() + " " + getX() + " " + getY());
         }
+    }
+
+    @Override
+    public void explode(double timeExplosionStart, double timeExplosionEnd){
+        state = EXPLODING;
+        this.explosionStart = timeExplosionStart;
+        this.explosionEnd = timeExplosionEnd;
+        GameManager.loadLevel("Jogo_COO/src/fases/fase2.txt");
     }
 }

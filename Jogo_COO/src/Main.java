@@ -72,9 +72,8 @@ public class Main {
 
 	/* Método principal */
     public static void main(String [] args) {
+
         
-        /* Variáveis do GameManager */
-        GameManager gameManager = new GameManager();
 
         /* Indica que o jogo está em execução */
 
@@ -90,12 +89,6 @@ public class Main {
         Player player = new Player(GameLib.WIDTH / 2, GameLib.HEIGHT * 0.90, currentTime);
 
         /* variaveis para controle do jogo */
-        long nextEnemy1 = currentTime + 2000;    // Próxima geração de inimigo tipo 1
-        long nextEnemy2 = currentTime + 7000;     // Próxima geração de inimigo tipo 2
-        boolean bossHasSpawned = false; // Flag para controle de boss
-        //long bossSpawnTime = 20000; Tempo de spawn do boss trocado para carregar as fases
-        double enemy2_spawnX = GameLib.WIDTH * 0.20; // Posição X de spawn do tipo 2
-        int enemy2_count = 0;                    // Contador para formação de inimigos
         double background1_count = 0.0;           // Contador de animação do fundo 1
         double background2_count = 0.0;           // Contador de animação do fundo 2
        	double background1_speed = 0.070; // velocidade do background
@@ -161,7 +154,7 @@ public class Main {
         //     System.out.println("Erro ao carregar a fase: " + e.getMessage());
         //     e.printStackTrace();
         // }
-        gameManager.loadLevel("Jogo_COO/src/fases/fase1.txt"); // Carrega os eventos da fase a partir do arquivo
+        GameManager.loadLevel("Jogo_COO/src/fases/fase1.txt"); // Carrega os eventos da fase a partir do arquivo
 
         while(running){
 
@@ -176,7 +169,7 @@ public class Main {
             currentTime = System.currentTimeMillis();
             
             // processa as coisas programadas na fase
-            gameManager.checkLevel(enemies1, enemies2, bosses1, enemies, colideComPlayer);
+            GameManager.checkLevel(enemies1, enemies2, bosses1, enemies, colideComPlayer);
 
             // while (proximoEvento < eventosDaFase.size()) {
             //     String[] evento = eventosDaFase.get(proximoEvento);
