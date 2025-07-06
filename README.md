@@ -244,3 +244,115 @@ Para a implementação dos power-ups foram realizadas alterações em diversas c
     - Uma List para PowerUps criada para guardar e processar todas as instâncias ativas. ELa é iterada para mover os power-ups, verificar suas colisões com o jogador e remover aqueles que saem da tela ou expiram sem serem coletados
 
      - O desenho dos PowerUps foi integrado ao processo de renderização da cena, garantindo sua visibilidade
+
+  Mudanças:
+Imports:
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+main:
+Função auxiliar para carregar fases linha 58 - 70:
+    // para carregar as fases
+    private static List<String[]> carregarConfiguracoes(String arquivoFase) throws IOException {
+    List<String[]> eventos = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(arquivoFase))) {
+        String linha;
+        while ((linha = reader.readLine()) != null) {
+            if (linha.trim().isEmpty()) continue;
+            String[] partes = linha.split(" ");
+            eventos.add(partes);
+        }
+    }
+    return eventos;
+}
+
+Linha 92 long bossSpawnTime = 20000; tirada
+
+Em coleções linha 103-111 para carregar as fases:
+        List<String[]> eventosDaFase = new ArrayList<>();
+        int proximoEvento = 0;
+
+        try{
+        eventosDaFase = carregarConfiguracoes("fase1.txt");
+        }catch (IOException e){
+            System.out.println("Erro ao carregar a fase: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+175 - 217 para programar as coisas necessarias na fase:
+            while (proximoEvento < eventosDaFase.size()) {
+                String[] evento = eventosDaFase.get(proximoEvento);
+                String tipo = evento[0];
+                int tempo = Integer.parseInt(evento[2]);
+
+                if (currentTime < tempo) break;
+
+                if ("INIMIGO".equalsIgnoreCase(tipo)) {
+                    int tipoInimigo = Integer.parseInt(evento[1]);
+                    double x = Double.parseDouble(evento[3]);
+                    double y = Double.parseDouble(evento[4]);
+
+                    if (tipoInimigo == 1) {
+                        Enemy1 e = new Enemy1(x, y, 0.2, (3 * Math.PI) / 2, 0.0);
+                        e.setNextShoot(currentTime + 500);
+                        enemies.add(e);
+                        enemies1.add(e);
+                        colideComPlayer.add(e);
+                    } else if (tipoInimigo == 2) {
+                        Enemy2 e = new Enemy2(x, y, 0.42, (3 * Math.PI) / 2, 0.0);
+                        enemies.add(e);
+                        enemies2.add(e);
+                        colideComPlayer.add(e);
+                    }
+                } else if ("CHEFE".equalsIgnoreCase(tipo)) {
+                    int tipoChefe = Integer.parseInt(evento[1]);
+                    int vida = Integer.parseInt(evento[2]);
+                    double x = Double.parseDouble(evento[4]);
+                    double y = Double.parseDouble(evento[5]);
+
+                    if (tipoChefe == 1) {
+                        Boss1 boss = new Boss1(x, y, 0.15, (3 * Math.PI) / 2, 0.0);
+                        boss.setVida(vida); // Assumindo método setVida existe
+                        enemies.add(boss);
+                        bosses1.add(boss);
+                        colideComPlayer.add(boss);
+                    }
+                }
+
+                proximoEvento++;
+            }
+
+Foi necessário alterar, para conseguir dar vida em boss.setVida, em Enemy para ter getter e setter:
+    // setter de vida
+    public void setVida(int vida) {
+        this.healthPoints = vida;
+        this.initialHealth = vida;
+    }
+
+    // getter de vida
+    public int getVida() {
+        return this.healthPoints;
+    }
+E em Boss para ter o setVida:
+        public void setVida(int vida) {
+        this.healthPoints = vida;
+        this.initialHealth = vida; // importante manter proporção correta na barra
+    }
+
+Linha 406-420 excluida:
+            /*if(currentTime > bossSpawnTime && !bossHasSpawned) {
+                // Spawn do boss
+                Boss1 boss1 = new Boss1(
+                    GameLib.WIDTH / 6,
+                    GameLib.HEIGHT * 0.5,
+                    0.15,
+                    (3 * Math.PI) / 2,
+                    0.0
+                );
+                
+                enemies.add(boss1);
+                bosses1.add(boss1);
+                colideComPlayer.add(boss1);
+                bossHasSpawned = true;
+            }*/
