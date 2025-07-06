@@ -104,7 +104,7 @@ public class Main {
         int proximoEvento = 0;
 
         try{
-        eventosDaFase = carregarConfiguracoes("fase1.txt");
+        eventosDaFase = carregarConfiguracoes("Jogo_COO/src/fases/fase1.txt"); // Carrega os eventos da fase a partir do arquivo
         }catch (IOException e){
             System.out.println("Erro ao carregar a fase: " + e.getMessage());
             e.printStackTrace();
