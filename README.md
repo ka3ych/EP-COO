@@ -372,6 +372,9 @@ O código original tinha diversos problemas:
 
 [IMAGEM DO FLUXOGRAMA]
 
+fases:
+  Armazena a configuração da fase, levando em consideração as especifidades dadas pelo enunciado do EP.
+
 GameObjects:
 - SpaceShips: Player, Enemy (tipos 1/2), Bosses
   Em 'SpaceShips' os inimigos e o próprios jogador foram interpretados como 'naves', que dividem caracteristicas em comum como por exemplo ter movimentação, explodir e atirar.
@@ -443,7 +446,6 @@ GameLib (não modificada)
   }
 
   Esse mesmo exemplo atualmente:
-  // Declaração da coleção
   List<PlayerProjectile> playerProjectiles = new ArrayList<>();
   
   // Atualização com iterator
@@ -476,10 +478,38 @@ GameLib (não modificada)
 - TripleShotPowerUp:	Disparo triplo simultâneo | Duração	15s | Aparência:	3 projéteis alinhados
   Bosses:
   Todos os chefes compartilham uma HealthBar.
-  Boss 1: Aparência: | Movimento: | Ataque:
-  Boss 2: Aparência: | Movimento: | Ataque: 
-  Boss 3: Aparência: | Movimento: | Ataque: 
+  Boss 1: Aparência: circulo vermelho | Movimento: segue pontos pré definidos e tem uma chance de ir para cada um | Ataque: 3 tiros que vão para baixo
+  Boss 2: Aparência: Quadrado da cor magenta | Movimento: ele se 'teleporta' aleatoriamente, o player tem uma representação visual antes dele se eleportar| Ataque: 3 tiros que vão para baixo.
+  Boss 3: Aparência: Um triangulo de 3 lados com a ponta para baixa, amarelo | Movimento: Circular que altera entre horário e antihorário aleatoriamente| Ataque: Ataca em todas as direções ao mesmo tempo
 
   Fases:
+  Em todas as fases, após matar o chefe o jogador é redirecionado para a próxima fase.
+- Fase 1 à 3: Com inimigos tipo 1 e 2 até aparecer o Boss, quando o boss é morto vai para a próxima fase. 
+- Freeplay: após matar o último boss é praticamente 'infinita' (muito grande) e tem apenas inimigos tipo 1 e 2.
 
 ## 5. Conclusão, resultados e reflexão
+Após finalizar, concluimos que no código original em comparação ao nosso conseguimos:
+- Redução da complexidade e dos ciclos na classe main original.
+- Maior coesão de código.
+- Adição de 3 novas mecânicas (power-ups, chefes e fases).
+
+Com o uso de Orientação à Objetos:
+- Extensibilidade com possíveis adições de novos power-ups/inimigos via herança.
+- Modificações localizadas em classes específicas.
+- Componentes reutilizaveis (como HealthBar e Collider).
+- Código organizado com as classes.
+- Classes isoladas permitem testes unitários.
+
+Desafios enfrentados:
+  No início, um dos maiores desafios foi encontrar as redundâncias e como as substituir para que o código fosse mais eficiente, separamos com essas 4 classes no início:
+- Player
+- Inimigos
+- Projeteis
+- Estrelas
+Considerando que o código original estava com o nome dos elementos em inglês, decidimos seguir nesse formato, para entender de forma mais fácil o estado do nosso código atual e comparar com o original.
+Só depois, nós percebemos que 'Player' e 'Inimigos' dividem muitas caracteristicas em comum, depois foi criada a 'SpaceShip' e em 'Stars' percebemos que seria mais fácil utilizar como 'BackgroundObjects' para caso fossemos decidir no futuro mudar algo e interpretar como backgroud.
+No método principal foi reduzido a quantidade de variaveis e foi começado a se utilizar coleções para deixar o código melhor.
+
+Depois da estruturação inicial, foi adicionado sem muitas dificuldades a classe de 'PowerUps', entretanto, em algum momento o jogo começou a congelar sozinho, até que percebemos que nós deveriamos colocar um limite pro delta das explosões, o limitando entre 0 e 1.
+
+Após isso, colocamos para carregar as fases e fizemos o 'Boss1' para testar, entretanto o 'Boss1' não estava nascendo, ai percebemos que não colocamos o tempo dos inimigos e do chefe separados, estavamos tratando como todos iguais.
