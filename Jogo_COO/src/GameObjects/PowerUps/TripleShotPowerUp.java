@@ -31,7 +31,7 @@ public class TripleShotPowerUp extends PowerUp {
     public void drawShape() {
         if (isStateTrue(GameObject.ACTIVE)) {
             GameLib.drawDiamond(x, y, radius + 15.0); // Desenha um diamante
-            GameLib.drawText("3X", x, y, 12f); // Texto para identificar (3x disparos)
+            GameLib.drawText("3X", x, y); // Texto para identificar (3x disparos)
         }
     }
 }

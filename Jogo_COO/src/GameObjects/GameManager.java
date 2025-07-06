@@ -56,10 +56,10 @@ final public class GameManager {
 
     private static void writeLevel(){
         GameLib.setColor(Color.WHITE);
-        GameLib.drawText(levelName, GameLib.WIDTH/10, GameLib.HEIGHT/10, 12f);
+        GameLib.drawText(levelName, GameLib.WIDTH/10, GameLib.HEIGHT/10);
         if(System.currentTimeMillis()-levelAnounceTime < 1000){
             GameLib.setColor(Color.RED);
-            GameLib.drawText(levelName, GameLib.WIDTH/2, GameLib.HEIGHT/2, 36f);
+            GameLib.drawText(levelName, GameLib.WIDTH/2, GameLib.HEIGHT/2);
         }
     }
 

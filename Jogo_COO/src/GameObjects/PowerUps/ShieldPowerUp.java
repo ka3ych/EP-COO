@@ -24,7 +24,7 @@ public class ShieldPowerUp extends PowerUp {
         if (isStateTrue(GameObject.ACTIVE)) {
             GameLib.setColor(Color.ORANGE); // Cor do power-up
             GameLib.drawCircle(x, y, radius); // Pode ser um círculo
-            GameLib.drawText("ESCUDO", x, y, 12f); // Texto para identificar
+            GameLib.drawText("ESCUDO", x, y); // Texto para identificar
         }
     }
 }
