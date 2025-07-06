@@ -1,4 +1,7 @@
 # EP Computação Orientada a Objetos
+Dérick dos Santos Arriado 15636042
+Júlio Arroio Silva 15466241
+Karina Yang Chen 15466658
 
 * [Shoot em UP Game](#shoot-em-up-game)
 * [Derick 20/06/2025](#dérick-yo-20062025)
@@ -356,3 +359,127 @@ Linha 406-420 excluida:
                 colideComPlayer.add(boss1);
                 bossHasSpawned = true;
             }*/
+/////////////////////////////////////// Dérick 06/07
+## 1. Código original
+O código original tinha diversos problemas:
+- Toda a lógica concentrada na classe main.
+- Redundância excessiva com repetição de lógica para colisões, atualização de estados e renderização de entidades
+- Gestão manual de arrays.
+- Sem encapsulamento.
+- Ausência de hierarquia.
+
+## 2. Nova estrutura
+
+[IMAGEM DO FLUXOGRAMA]
+
+GameObjects:
+- SpaceShips: Player, Enemy (tipos 1/2), Bosses
+  Em 'SpaceShips' os inimigos e o próprios jogador foram interpretados como 'naves', que dividem caracteristicas em comum como por exemplo ter movimentação, explodir e atirar.
+  Player:   [IMAGEM DO PLAYER]
+  Enemy tipo 1:   [IMAGEM DO ENEMY TIPO 1]
+  Enemy tipo 2:   [IMAGEM DO ENEMY TIPO 2]
+  Boss 1:   [IMAGEM DO BOSS 1]
+  Boss 2:   [IMAGEM DO BOSS 2]
+  Boss 3:   [IMAGEM DO BOSS 3]
+
+- Projectiles: PlayerProjectile, EnemyProjectile
+  Os projeteis dividem caracteristicas em comum entre si, só que tem a diferença que o do jogador danifica as 'SpaceShips' inimigas e os inimigos danificam a 'SpaceShip' do jogador.
+
+  [IMAGEM DOS PROJETEIS]
+
+  
+- PowerUps: ShieldPowerUp, TripleShotPowerUp
+  Poderes para o jogador conseguir tomar um hit sem morrer ou para que ele atire 3 projeteis ao mesmo tempo.
+
+  [IMAGEM DOS PODERES QUE JÁ ESTÃO NO GITHUB]
+
+- BackgroundObjects: Stars, HealthBar
+  Estrelas e barra de vida.
+
+  [IMAGEM DA ESTRELA E BARRA DE VIDA]
+
+- Colliders: Interface para colisão
+  Para as colisões.
+
+GameLib (não modificada)
+
+## 3. Coleções
+  Foi usada coleções para substituir as arrays originais que eram estáticas, assim consegue melhorar e muito a qualidade do código, com exclusões mais seguras e gerenciamento seguro.
+  Exemplo do código original:
+  // Declaração de arrays
+  int [] projectile_states = new int[10];
+  double [] projectile_X = new double[10];
+  double [] projectile_Y = new double[10];
+  double [] projectile_VX = new double[10];
+  double [] projectile_VY = new double[10];
+  
+  // Inicialização
+  for(int i = 0; i < projectile_states.length; i++) 
+      projectile_states[i] = INACTIVE;
+  
+  // Atualização de estado
+  for(int i = 0; i < projectile_states.length; i++) {
+      if(projectile_states[i] == ACTIVE) {
+          if(projectile_Y[i] < 0) {
+              projectile_states[i] = INACTIVE;
+          } else {
+              projectile_X[i] += projectile_VX[i] * delta;
+              projectile_Y[i] += projectile_VY[i] * delta;
+          }
+      }
+  }
+  
+  // Adição de novo projétil
+  if(currentTime > player_nextShot) {
+      int free = findFreeIndex(projectile_states);
+      if(free < projectile_states.length) {
+          projectile_X[free] = player_X;
+          projectile_Y[free] = player_Y - 2 * player_radius;
+          projectile_VX[free] = 0.0;
+          projectile_VY[free] = -1.0;
+          projectile_states[free] = ACTIVE;
+          player_nextShot = currentTime + 100;
+      }
+  }
+
+  Esse mesmo exemplo atualmente:
+  // Declaração da coleção
+  List<PlayerProjectile> playerProjectiles = new ArrayList<>();
+  
+  // Atualização com iterator
+  Iterator<PlayerProjectile> iter = playerProjectiles.iterator();
+  while(iter.hasNext()) {
+      PlayerProjectile p = iter.next();
+      if(p.isStateTrue(ACTIVE)) {
+          if(p.getY() < 0) {
+              iter.remove(); // Remoção segura
+          } else {
+              p.move(delta); // Comportamento encapsulado
+          }
+      }
+  }
+  
+  // Adição de novo projétil
+  if(currentTime > player.getNextShoot()) {
+      playerProjectiles.add(new PlayerProjectile(
+          player.getX(),
+          player.getY() - 2 * Player.PLAYER_RADIUS,
+          0.0,
+          -1.0
+      ));
+      player.setNextShoot(currentTime + 100);
+  }
+
+## 4. Novas funcionalidades e fases
+  Power-ups:
+- ShieldPowerUp:	Escudo protetor (absorve 1 hit)	| Duração: até receber um hit | Aparência: círculo ciano
+- TripleShotPowerUp:	Disparo triplo simultâneo | Duração	15s | Aparência:	3 projéteis alinhados
+  Bosses:
+  Todos os chefes compartilham uma HealthBar.
+  Boss 1: Aparência: | Movimento: | Ataque:
+  Boss 2: Aparência: | Movimento: | Ataque: 
+  Boss 3: Aparência: | Movimento: | Ataque: 
+
+  Fases:
+
+## 5. Conclusão, resultados e reflexão
