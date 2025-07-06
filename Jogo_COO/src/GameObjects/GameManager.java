@@ -10,7 +10,10 @@ import GameObjects.Colliders.CollideWithPlayer;
 import GameObjects.SpaceShips.Enemies.Enemy;
 import GameObjects.SpaceShips.Enemies.Enemy1;
 import GameObjects.SpaceShips.Enemies.Enemy2;
+import GameObjects.SpaceShips.Enemies.Bosses.Boss;
 import GameObjects.SpaceShips.Enemies.Bosses.Boss1;
+import GameObjects.SpaceShips.Enemies.Bosses.Boss2;
+import GameObjects.SpaceShips.Enemies.Bosses.Boss3;
 
 final public class GameManager {
     protected static long deltaTime = System.currentTimeMillis();
@@ -48,8 +51,11 @@ final public class GameManager {
 
     public static void checkLevel(List<Enemy1> enemies1, 
                     List<Enemy2> enemies2, 
-                    List<Boss1> bosses1, 
                     List<Enemy> enemies, 
+                    List<Boss1> bosses1, 
+                    List<Boss2> bosses2, 
+                    List<Boss3> bosses3,
+                    List<Boss> bosses, 
                     List<CollideWithPlayer> colideComPlayer)
     {
         //System.out.println(eventosDaFase.size() + " eventos na fase.");
@@ -114,6 +120,20 @@ final public class GameManager {
                     boss.setVida(vida); // Assumindo método setVida existe
                     enemies.add(boss);
                     bosses1.add(boss);
+                    colideComPlayer.add(boss);
+                }
+                else if (tipoChefe == 2) {
+                    Boss2 boss = new Boss2(x, y, 0.15, (3 * Math.PI) / 2, 0.0);
+                    boss.setVida(vida); // Assumindo método setVida existe
+                    enemies.add(boss);
+                    bosses2.add(boss);
+                    colideComPlayer.add(boss);
+                }
+                else if (tipoChefe == 3) {
+                    Boss3 boss = new Boss3(x, y, 0.15, (3 * Math.PI) / 2, 0.0);
+                    boss.setVida(vida); // Assumindo método setVida existe
+                    enemies.add(boss);
+                    bosses3.add(boss);
                     colideComPlayer.add(boss);
                 }
             }

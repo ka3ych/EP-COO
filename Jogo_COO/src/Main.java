@@ -104,7 +104,10 @@ public class Main {
         List<Enemy> enemies = new ArrayList<>(); // Todos os inimigos>
         List<Enemy1> enemies1 = new ArrayList<>(); // Inimigos tipo 1
         List<Enemy2> enemies2 = new ArrayList<>(); // Inimigos
-        List<Boss1> bosses1 = new ArrayList<>(); // Lista de bosses
+        List<Boss> bosses = new ArrayList<>(); // Lista de bosses do tipo 1
+        List<Boss1> bosses1 = new ArrayList<>(); // Lista de bosses do tipo 1
+        List<Boss2> bosses2 = new ArrayList<>(); // Lista de bosses do tipo 2
+        List<Boss3> bosses3 = new ArrayList<>(); // Lista de bosses do tipo 3
         List<CollideWithPlayer> colideComPlayer = new ArrayList<>(); // Lista de objetos que colidem com o player
         List<Stars> background1 = new ArrayList<>(); // Estrelas de fundo próximo
         List<Stars> background2 = new ArrayList<>(); // Estrelas de fundo distante
@@ -169,7 +172,7 @@ public class Main {
             currentTime = System.currentTimeMillis();
             
             // processa as coisas programadas na fase
-            GameManager.checkLevel(enemies1, enemies2, bosses1, enemies, colideComPlayer);
+            GameManager.checkLevel(enemies1, enemies2, enemies, bosses1, bosses2, bosses3, bosses, colideComPlayer);
 
             // while (proximoEvento < eventosDaFase.size()) {
             //     String[] evento = eventosDaFase.get(proximoEvento);
@@ -343,9 +346,9 @@ public class Main {
                 }
             }
 
-            Iterator<Boss1> boss1Iter = bosses1.iterator();
-            while(boss1Iter.hasNext()){
-                Boss1 b = boss1Iter.next();
+            Iterator<Boss> bossIter = bosses.iterator();
+            while(bossIter.hasNext()){
+                Boss b = bossIter.next();
                 
                 if(b.isStateTrue(ACTIVE)) {
                     b.shoot(enemyProjectiles, colideComPlayer, player);
