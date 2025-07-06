@@ -182,13 +182,6 @@ public class Main {
                 for(CollideWithPlayer ccp : colideComPlayer){
                     ccp.colideWithPlayer(player);
                 }
-
-                // Colisão do player com power-ups
-                for(PowerUp pu : powerUps){
-                    if(pu.isStateTrue(ACTIVE)){
-                        pu.colideWithPlayer(player);
-                    }
-                }
             }
             
 			/* colisões projeteis (player) - inimigos */
@@ -343,6 +336,7 @@ public class Main {
                 }
 
                 powerUps.add(newPowerUp);
+                colideComPlayer.add(newPowerUp);
                 nextPowerUpSpawn = currentTime + 5000 + rand.nextInt(5000); // Próximo power-up em 5-10 segundos
             }
             

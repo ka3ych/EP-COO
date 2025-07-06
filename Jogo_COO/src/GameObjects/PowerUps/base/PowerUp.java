@@ -3,10 +3,11 @@ package GameObjects.PowerUps.base;
 import GameLib.GameLib;
 import GameObjects.SpaceShips.Player; // Para o método colideWithPlayer
 import GameObjects.GameObject; // Para as constantes de estado
+import GameObjects.Colliders.*;
 
 // import java.awt.Color; // Para desenhar
 
-public abstract class PowerUp extends GameObject {
+public abstract class PowerUp extends GameObject implements CollideWithPlayer {
     protected double vx, vy; // Velocidade de movimento do power-up (pode ser 0 para alguns)
     protected double lifespan; // Tempo de vida do power-up na tela se não for coletado
     protected long spawnTime; // Quando o power-up apareceu
@@ -44,6 +45,10 @@ public abstract class PowerUp extends GameObject {
             applyEffect(player);
             this.state = GameObject.INACTIVE; // Desativa o power-up após coleta
         }
+    }
+
+    public void reseting(){
+        state = INACTIVE;
     }
 
     // Getters para novos atributos

@@ -1,6 +1,5 @@
 package GameObjects.Projectiles;
 
-import GameLib.GameLib;
 import GameObjects.GameObject;
 
 

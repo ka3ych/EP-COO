@@ -27,4 +27,6 @@ public class ShieldPowerUp extends PowerUp {
             GameLib.drawText("ESCUDO", x, y); // Texto para identificar
         }
     }
+
+    
 }
