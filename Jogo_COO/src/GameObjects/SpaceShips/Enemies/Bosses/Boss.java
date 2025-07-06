@@ -27,5 +27,5 @@ public abstract class Boss extends Enemy{
     public void setVida(int vida) {
         this.healthPoints = vida;
         this.initialHealth = vida; // importante manter proporção correta na barra
-    }
+    }    
 }

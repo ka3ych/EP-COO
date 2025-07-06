@@ -1,11 +1,14 @@
 package GameObjects;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import GameLib.GameLib;
 import GameObjects.Colliders.CollideWithPlayer;
 import GameObjects.SpaceShips.Enemies.Enemy;
 import GameObjects.SpaceShips.Enemies.Enemy1;
@@ -16,16 +19,24 @@ import GameObjects.SpaceShips.Enemies.Bosses.Boss2;
 import GameObjects.SpaceShips.Enemies.Bosses.Boss3;
 
 final public class GameManager {
-    protected static long deltaTime = System.currentTimeMillis();
+    
+
+    protected static long deltaTime;
+    protected static long levelAnounceTime = System.currentTimeMillis();
     protected static int proximoEvento = 0;
     protected static long nextEnemy2 = 0;
     protected static int enemy2_count = 0; // Contador para controlar a formação do inimigo 2 
+    protected static String level;
+    private static String levelName;
 
     protected static List<String[]> eventosDaFase = new ArrayList<>();
 
     private static List<String[]> carregarConfiguracoes(String arquivoFase) throws IOException {
         List<String[]> eventos = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(arquivoFase))) {
+        level = arquivoFase;
+        levelAnounceTime = System.currentTimeMillis();
+        setLevelName(level);
+        try (BufferedReader reader = new BufferedReader(new FileReader(level))) {
             String linha;
             while ((linha = reader.readLine()) != null) {
                 if (linha.trim().isEmpty()) continue;
@@ -35,8 +46,22 @@ final public class GameManager {
         }
         return eventos;
     }
-    
-    
+
+    private static void setLevelName(String levelPath){
+        String pathParts[] = level.split("/");
+        String aux = pathParts[pathParts.length-1];
+        pathParts = aux.split("\\.");
+        levelName = pathParts[0];
+    }
+
+    private static void writeLevel(){
+        GameLib.setColor(Color.WHITE);
+        GameLib.drawText(levelName, GameLib.WIDTH/10, GameLib.HEIGHT/10, 12f);
+        if(System.currentTimeMillis()-levelAnounceTime < 1000){
+            GameLib.setColor(Color.RED);
+            GameLib.drawText(levelName, GameLib.WIDTH/2, GameLib.HEIGHT/2, 36f);
+        }
+    }
 
     public static void loadLevel(String fasePath){
         try{
@@ -49,6 +74,15 @@ final public class GameManager {
         }
     }
 
+    public static void resetLevel(List<CollideWithPlayer> colideComPlayer){
+        Iterator<CollideWithPlayer> cwpIter = colideComPlayer.iterator();
+        while (cwpIter.hasNext()) {
+            CollideWithPlayer cwp = cwpIter.next();
+            cwp.reseting();
+        }
+        loadLevel(level);
+    }
+
     public static void checkLevel(List<Enemy1> enemies1, 
                     List<Enemy2> enemies2, 
                     List<Enemy> enemies, 
@@ -58,6 +92,7 @@ final public class GameManager {
                     List<Boss> bosses, 
                     List<CollideWithPlayer> colideComPlayer)
     {
+        writeLevel();
         //System.out.println(eventosDaFase.size() + " eventos na fase.");
             // Processa os eventos até o próximo evento que ainda não ocorreu
         while (proximoEvento < eventosDaFase.size()) {
@@ -120,6 +155,7 @@ final public class GameManager {
                     boss.setVida(vida); // Assumindo método setVida existe
                     enemies.add(boss);
                     bosses1.add(boss);
+                    bosses.add(boss);
                     colideComPlayer.add(boss);
                 }
                 else if (tipoChefe == 2) {
@@ -127,6 +163,7 @@ final public class GameManager {
                     boss.setVida(vida); // Assumindo método setVida existe
                     enemies.add(boss);
                     bosses2.add(boss);
+                    bosses.add(boss);
                     colideComPlayer.add(boss);
                 }
                 else if (tipoChefe == 3) {
@@ -134,6 +171,7 @@ final public class GameManager {
                     boss.setVida(vida); // Assumindo método setVida existe
                     enemies.add(boss);
                     bosses3.add(boss);
+                    bosses.add(boss);
                     colideComPlayer.add(boss);
                 }
             }

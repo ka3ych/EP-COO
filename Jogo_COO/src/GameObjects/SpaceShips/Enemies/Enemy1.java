@@ -26,6 +26,7 @@ public class Enemy1 extends Enemy{
             x += getEscalarVelocity() * Math.cos(getAngle()) * time;
             y += getEscalarVelocity() * Math.sin(getAngle()) * time * (-1.0);
             angle += getRotationVelocity() * time;
+            outOfBounds();
         }
 
         public void shoot(List<EnemyProjectile> enemyProjectiles, List<CollideWithPlayer> colideComPlayer) {

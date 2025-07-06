@@ -1,26 +1,38 @@
 package GameObjects.SpaceShips;
 import GameLib.GameLib;
 import GameObjects.GameObject;
+import GameObjects.BackgroundObjects.HealthBar;
+import GameObjects.Colliders.CollideWithPlayer;
 import GameObjects.Projectiles.PlayerProjectile;
+import GameObjects.GameManager;
 
 import java.awt.Color;
 import java.util.List;
 
-public class Player extends SpaceShip{
 
+
+public class Player extends SpaceShip{
+    private static final int INITIAL_HEALTH = 5;
+
+    protected HealthBar healthBar = new HealthBar(this);
+    
     // Atributos para o escudo
     private boolean hasShield;
-    private long shieldEndTime; // Tempo que o escudo acaba
 
     // Atributos para o disparo triplo
     private boolean hasTripleShot;
     private long TripleShotEndTime;
 
+    // Atributos para reinicio da fase
+    private List<CollideWithPlayer> collideWithPlayersList;
+
     // construtor do Player
-    public Player(double x, double y, long nextShoot){
+    public Player(double x, double y, long nextShoot, List<CollideWithPlayer> list){
         this.x = x;
         this.y = y;
         this.nextShoot = nextShoot;
+        collideWithPlayersList = list;
+
         state = ACTIVE;
         this.radius = PLAYER_RADIUS;
         this.damage = 1.0;
@@ -29,18 +41,20 @@ public class Player extends SpaceShip{
         color = Color.BLUE; // cor do player
         this.healthBarSize = 20; // tamanho da barra de vida do player
         this.hasShield = false;
-        this.shieldEndTime = 0;
       
         // Inicializa o novo atributo de disparo duplo
         this.hasTripleShot = false;
         this.TripleShotEndTime = 0;
+        healthBar.setSpaceShip(this);
+        this.healthPoints = INITIAL_HEALTH;
+        this.healthBarSize = 20;
+        this.initialHealth = INITIAL_HEALTH;
     }   
 
     @Override // Sobrescreva o método hit para considerar o escudo
     public void hit(long explosionDuration) {
         if (hasShield) {
             hasShield = false; // Escudo absorve um hit
-            shieldEndTime = 0; // Remove o escudo
             System.out.println("Escudo ativou e foi desativado!");
         } else {
             healthPoints--;
@@ -58,6 +72,9 @@ public class Player extends SpaceShip{
 
     public void activate(long time){
         state = ACTIVE;
+        healthPoints = initialHealth;
+        GameManager.resetLevel(collideWithPlayersList);
+        //activateShield(1000);
     }
 
     public void outOfBounds(){
@@ -68,9 +85,8 @@ public class Player extends SpaceShip{
     }
 
     // método para ativar o escudo
-    public void activateShield(long duration) {
+    public void activateShield() {
         this.hasShield = true;
-        this.shieldEndTime = System.currentTimeMillis() + duration;
     }
 
     // Método para ativar disparo triplo
@@ -81,12 +97,6 @@ public class Player extends SpaceShip{
 
     // Método para atualizar o estado do player (chame no main loop)
     public void update(long currentTime) {
-        // Verifica se o escudo acabou
-        if (hasShield && currentTime > shieldEndTime) {
-            this.hasShield = false;
-            this.shieldEndTime = 0;
-            System.out.println("Escudo acabou.");
-        }
         // Verifica se o disparo duplo acabou
         if (hasTripleShot && currentTime > TripleShotEndTime) {
             this.hasTripleShot = false;
@@ -144,6 +154,7 @@ public class Player extends SpaceShip{
     @Override
     public void drawShape(){
         GameLib.drawPlayer(getX(), getY(), getRadius()); 
+        healthBar.drawShape();
     }
     
     @Override

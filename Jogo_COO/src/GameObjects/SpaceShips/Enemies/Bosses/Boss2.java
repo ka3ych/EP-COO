@@ -19,10 +19,11 @@ public class Boss2 extends Boss{
     // atributos
     long timePassed = 0;
     long changeDirectionTime = 1500; // tempo para mudar direção
+    long showTpTime = changeDirectionTime/2;
     double newX, newY;
     int xOrientation = 1; // 1 para direita, -1 para esquerda
     int yOrientation = 1; // 1 para baixo, -1 para cima
-    private double movementOffset = 0; 
+    double size = getRadius() * 2;
 
     // construtor
     public Boss2(double x, double y, double escalarVelocity, double angle, double velocityRotation){
@@ -32,78 +33,43 @@ public class Boss2 extends Boss{
 
     // métodos
     public void drawShape(){
-        // Define a cor antes de desenhar
-        GameLib.setColor(color);
-        double size = getRadius() * 2;
-        // Desenha o quadrado (boss)
-        GameLib.fillRect(getX(), getY(), size, size);
-        // Desenha a barra de vida
-        healthBar.drawShape();
+        if(isStateTrue(ACTIVE)){
+            // Define a cor antes de desenhar
+            GameLib.setColor(color);
+            double size = getRadius() * 2;
+            // Desenha o quadrado (boss)
+            GameLib.fillRect(getX(), getY(), size, size);
+            // Desenha a barra de vida
+            healthBar.drawShape();
+        }
+
+        
     }
 
     public void moveAndDirection(long time){
-        // Limite vertical máximo (80% da altura da tela)
-        double maxY = GameLib.HEIGHT * 0.80;
-        
-        double positionsX[] = {
-            GameLib.WIDTH / 6,
-            GameLib.WIDTH / 6 * 2,
-            GameLib.WIDTH / 6 * 3,
-            GameLib.WIDTH / 6 * 4,
-            GameLib.WIDTH / 6 * 5
-        };
-        double positionsY[] = {
-            GameLib.HEIGHT / 10,
-            GameLib.HEIGHT / 10 * 2,
-            GameLib.HEIGHT / 10 * 3,
-            // Ajustado para não passar de 80% da tela
-            Math.min(maxY, GameLib.HEIGHT / 10 * 4),
-            Math.min(maxY, GameLib.HEIGHT / 10 * 5)
-        };
-
         Random rand = new Random();
-        movementOffset += 0.001 * time; // Movimento senoidal
 
         // Fator de redução de velocidade (60% da velocidade original)
-        double speedFactor = 0.6;
+        //double speedFactor = 0.6;
         
         if(timePassed > changeDirectionTime){
-            double waveEffect = Math.sin(movementOffset) * 50; // Efeito de onda
-            
-            if(((xOrientation == 1 && x < newX) || (xOrientation == -1 && x > newX)) && 
-               ((yOrientation == 1 && y < newY) || (yOrientation == -1 && y > newY))){
-                x += speedFactor * getEscalarVelocity() * time * xOrientation;
-                y += speedFactor * getEscalarVelocity() * time * yOrientation + waveEffect;
-                angle += getRotationVelocity() * time;
-            }
-            else if((xOrientation == 1 && x < newX) || (xOrientation == -1 && x > newX)){
-                x += speedFactor * getEscalarVelocity()  * time * xOrientation;
-                y += waveEffect;
-                angle += getRotationVelocity() * time;
-            }
-            else if((yOrientation == 1 && y < newY) || (yOrientation == -1 && y > newY)){
-                y += speedFactor * getEscalarVelocity() * time * yOrientation + waveEffect;
-                angle += getRotationVelocity() * time;
-            }
-            else{
-                timePassed = 0;
-            }
+            x = newX;
+            y = newY;
+            timePassed = 0;
+        }else if(timePassed <= showTpTime){
+            newX = rand.nextDouble(0+size/2, GameLib.WIDTH-size/2);
+            newY = rand.nextDouble(0+size/2, GameLib.HEIGHT-size/2);
         }
         else{ 
-            newX = positionsX[rand.nextInt(positionsX.length)];
-            newY = positionsY[rand.nextInt(positionsY.length)];
+            GameLib.setColor(color);
+            
 
-            // Limitar posições para não sair da tela
-            newX = Math.max(BOSS2_RADIUS, Math.min(GameLib.WIDTH - BOSS2_RADIUS, newX));
-            newY = Math.max(BOSS2_RADIUS, Math.min(maxY - BOSS2_RADIUS, newY)); // Limite vertical de 80%
-
-            xOrientation = newX < x ? -1 : 1;
-            yOrientation = newY < y ? -1 : 1;
+            // Desenha o quadrado (boss)
+            GameLib.drawLine(newX-size/2, newY+size/2, newX+size/2, newY+size/2);
+            GameLib.drawLine(newX-size/2, newY-size/2, newX+size/2, newY-size/2);
+            GameLib.drawLine(newX-size/2, newY-size/2, newX-size/2, newY+size/2);
+            GameLib.drawLine(newX+size/2, newY-size/2, newX+size/2, newY+size/2);
         }
-
-        // Garantir que o boss não saia da tela e não desça além de 80%
-        x = Math.max(BOSS2_RADIUS, Math.min(GameLib.WIDTH - BOSS2_RADIUS, x));
-        y = Math.max(BOSS2_RADIUS, Math.min(maxY - BOSS2_RADIUS, y)); // Limite vertical de 80%
 
         timePassed += time;
     }

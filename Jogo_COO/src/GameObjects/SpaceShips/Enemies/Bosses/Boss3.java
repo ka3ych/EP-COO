@@ -38,21 +38,23 @@ public class Boss3 extends Boss {
     }
 
     public void drawShape() {
-        GameLib.setColor(color);
-        double size = getRadius() * 2;
-        
-        double baseLeftX = x - size/2;
-        double baseLeftY = y - size/2;
-        double baseRightX = x + size/2;
-        double baseRightY = y - size/2;
-        double bottomX = x;
-        double bottomY = y + size/2;
-        
-        GameLib.drawLine(baseLeftX, baseLeftY, baseRightX, baseRightY);
-        GameLib.drawLine(baseRightX, baseRightY, bottomX, bottomY);
-        GameLib.drawLine(bottomX, bottomY, baseLeftX, baseLeftY);
-        
-        healthBar.drawShape();
+        if(isStateTrue(ACTIVE)){
+            GameLib.setColor(color);
+            double size = getRadius() * 2;
+            
+            double baseLeftX = x - size/2;
+            double baseLeftY = y - size/2;
+            double baseRightX = x + size/2;
+            double baseRightY = y - size/2;
+            double bottomX = x;
+            double bottomY = y + size/2;
+            
+            GameLib.drawLine(baseLeftX, baseLeftY, baseRightX, baseRightY);
+            GameLib.drawLine(baseRightX, baseRightY, bottomX, bottomY);
+            GameLib.drawLine(bottomX, bottomY, baseLeftX, baseLeftY);
+            
+            healthBar.drawShape();
+        }
     }
 
     public void moveAndDirection(long delta) {
@@ -136,6 +138,6 @@ public class Boss3 extends Boss {
         state = EXPLODING;
         this.explosionStart = timeExplosionStart;
         this.explosionEnd = timeExplosionEnd;
-        GameManager.loadLevel("Jogo_COO/src/fases/fase1.txt");
+        GameManager.loadLevel("Jogo_COO/src/fases/freeplay.txt");
     }
 }

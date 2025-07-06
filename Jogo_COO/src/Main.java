@@ -84,9 +84,6 @@ public class Main {
         long delta;
         long currentTime = System.currentTimeMillis();
 
-		/* variáveis do player */
-
-        Player player = new Player(GameLib.WIDTH / 2, GameLib.HEIGHT * 0.90, currentTime);
 
         /* variaveis para controle do jogo */
         double background1_count = 0.0;           // Contador de animação do fundo 1
@@ -125,6 +122,10 @@ public class Main {
             Stars star = new Stars(rand.nextDouble() * GameLib.WIDTH, rand.nextDouble() * GameLib.HEIGHT, Color.DARK_GRAY);
             background2.add(star);
         }
+
+        /* variáveis do player */
+
+        Player player = new Player(GameLib.WIDTH / 2, GameLib.HEIGHT * 0.90, currentTime, colideComPlayer);
                         
 		/* iniciado interface gráfica */
 
@@ -164,58 +165,13 @@ public class Main {
 			/* Usada para atualizar o estado dos elementos do jogo    */
 			/* (player, projéteis e inimigos) "delta" indica quantos  */
 			/* ms se passaram desde a última atualização.             */
-
             delta = System.currentTimeMillis() - currentTime;
 
             /* Já a variável "currentTime" nos dá o timestamp atual.  */
-
             currentTime = System.currentTimeMillis();
             
             // processa as coisas programadas na fase
             GameManager.checkLevel(enemies1, enemies2, enemies, bosses1, bosses2, bosses3, bosses, colideComPlayer);
-
-            // while (proximoEvento < eventosDaFase.size()) {
-            //     String[] evento = eventosDaFase.get(proximoEvento);
-            //     String tipo = evento[0];
-            //     int tempo = Integer.parseInt(evento[2]);
-
-            //     if (currentTime < tempo) break;
-
-            //     if ("INIMIGO".equalsIgnoreCase(tipo)) {
-            //         int tipoInimigo = Integer.parseInt(evento[1]);
-            //         double x = Double.parseDouble(evento[3]);
-            //         double y = Double.parseDouble(evento[4]);
-
-            //         if (tipoInimigo == 1) {
-            //             Enemy1 e = new Enemy1(x, y, 0.2, (3 * Math.PI) / 2, 0.0);
-            //             e.setNextShoot(currentTime + 500);
-            //             enemies.add(e);
-            //             enemies1.add(e);
-            //             colideComPlayer.add(e);
-            //         } else if (tipoInimigo == 2) {
-            //             Enemy2 e = new Enemy2(x, y, 0.42, (3 * Math.PI) / 2, 0.0);
-            //             enemies.add(e);
-            //             enemies2.add(e);
-            //             colideComPlayer.add(e);
-            //         }
-            //     } else if ("CHEFE".equalsIgnoreCase(tipo)) {
-            //         int tipoChefe = Integer.parseInt(evento[1]);
-            //         int vida = Integer.parseInt(evento[2]);
-            //         double x = Double.parseDouble(evento[4]);
-            //         double y = Double.parseDouble(evento[5]);
-
-            //         if (tipoChefe == 1) {
-            //             Boss1 boss = new Boss1(x, y, 0.15, (3 * Math.PI) / 2, 0.0);
-            //             boss.setVida(vida); // Assumindo método setVida existe
-            //             enemies.add(boss);
-            //             bosses1.add(boss);
-            //             colideComPlayer.add(boss);
-            //         }
-            //     }
-
-            //     proximoEvento++;
-            // }
-
 
             /***************************/
             /* Verificação de colisões */
@@ -355,74 +311,6 @@ public class Main {
                 }
             }
             
-			/* verificando se novos inimigos (tipo 1) devem ser "lançados" */
-
-            // if(currentTime > nextEnemy1){
-
-            //     Enemy1 e = new Enemy1(
-            //         rand.nextDouble() * (GameLib.WIDTH - 20.0) + 10.0,
-            //         -10.0,
-            //         0.20 + rand.nextDouble() * 0.15,
-            //         (3 * Math.PI) / 2,
-            //         0.0
-            //     );
-            //     e.setNextShoot(currentTime + 500);
-
-            //     enemies.add(e);
-            //     enemies1.add(e);
-            //     colideComPlayer.add(e);
-            //     nextEnemy1 = currentTime + 500;
-            // }
-            
-			/* verificando se novos inimigos (tipo 2) devem ser "lançados" */
-
-            // if(currentTime > nextEnemy2){
-
-            //     Enemy2 e = new Enemy2(
-            //         enemy2_spawnX,
-            //         -10.0,
-            //         0.42,
-            //         (3 * Math.PI) / 2,
-            //         0.0
-            //     );
-
-            //     enemies.add(e);
-            //     enemies2.add(e);
-            //     colideComPlayer.add(e);
-
-            //     enemy2_count++;
-                
-            //     // Controle de formação
-            //     if(enemy2_count < 10){
-
-            //         nextEnemy2 = currentTime + 120;
-            //     }
-            //     else{
-
-            //         enemy2_count = 0;
-            //         enemy2_spawnX = rand.nextDouble() > 0.5 ? GameLib.WIDTH * 0.2 : GameLib.WIDTH * 0.8;
-            //         nextEnemy2 = (long) (currentTime + 3000 + rand.nextDouble() * 3000);
-            //     }
-            // }
-
-            /*if(currentTime > bossSpawnTime && !bossHasSpawned) {
-                // Spawn do boss
-                Boss1 boss1 = new Boss1(
-                    GameLib.WIDTH / 6,
-                    GameLib.HEIGHT * 0.5,
-                    0.15,
-                    (3 * Math.PI) / 2,
-                    0.0
-                );
-                
-                enemies.add(boss1);
-                bosses1.add(boss1);
-                colideComPlayer.add(boss1);
-                bossHasSpawned = true;
-            }*/
-
-            
-
 			/* Verificando se a explosão do player já acabou.         */
 			/* Ao final da explosão, o player volta a ser controlável */
             if(!player.isStateTrue(ACTIVE) && currentTime > player.getExplosionEnd()){

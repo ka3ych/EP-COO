@@ -63,6 +63,10 @@ public abstract class Enemy extends SpaceShip implements CollideWithPlayer{
         return this.healthPoints;
     }
 
+    public void reseting(){
+        state = INACTIVE;
+    }
+
     // getters
     public double getEscalarVelocity(){return v;}
     public double getAngle(){return angle;}

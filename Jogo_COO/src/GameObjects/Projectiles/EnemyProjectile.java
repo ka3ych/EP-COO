@@ -14,6 +14,10 @@ public class EnemyProjectile extends Projectile implements CollideWithPlayer{
             color = Color.RED; // cor do projetil do inimigo
         }
 
+        public void reseting(){
+            state = INACTIVE;
+        }
+
         // métodos
         public void drawShape(){
             if(isStateTrue(ACTIVE)) {
