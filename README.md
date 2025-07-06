@@ -378,20 +378,19 @@ fases:
   Armazena a configuração da fase, levando em consideração as especifidades dadas pelo enunciado do EP.
 
 GameObjects:
-- SpaceShips: Player, Enemy (tipos 1/2), Bosses
-  Em 'SpaceShips' os inimigos e o próprios jogador foram interpretados como 'naves', que dividem caracteristicas em comum como por exemplo ter movimentação, explodir e atirar.
-  Player:   ![Captura de tela de 2025-07-06 18-55-49](https://github.com/user-attachments/assets/c54cb5a4-9adf-49d9-a696-fed0b02b739d)
-  Enemy tipo 1:   ![Captura de tela de 2025-07-06 18-57-24](https://github.com/user-attachments/assets/5a755098-a662-45e7-95bf-e2a261dec34b)
-  Enemy tipo 2:   ![Captura de tela de 2025-07-06 18-57-30](https://github.com/user-attachments/assets/1b884aea-320b-4efa-846a-f5b78a0e1630)
-  Boss 1:   ![Captura de tela de 2025-07-06 18-59-23](https://github.com/user-attachments/assets/239443fe-c8e2-4759-a591-a93e091ab736)
-  Boss 2:   ![Captura de tela de 2025-07-06 19-00-08](https://github.com/user-attachments/assets/85d13133-e062-49b8-85aa-d3b1174c26db)
-  Boss 3:   ![Captura de tela de 2025-07-06 19-00-41](https://github.com/user-attachments/assets/6390ae59-10fb-4a0e-8a8b-e4db2dd9f215)
-
+- SpaceShips: Player, Enemy (tipos 1/2), Bosses <br />
+  Em 'SpaceShips' os inimigos e o próprios jogador foram interpretados como 'naves', que dividem caracteristicas em comum como por exemplo ter movimentação, explodir e atirar. <br />
+  Player:   ![Captura de tela de 2025-07-06 18-55-49](https://github.com/user-attachments/assets/c54cb5a4-9adf-49d9-a696-fed0b02b739d) <br />
+  Enemy tipo 1:   ![Captura de tela de 2025-07-06 18-57-24](https://github.com/user-attachments/assets/5a755098-a662-45e7-95bf-e2a261dec34b) <br />
+  Enemy tipo 2:   ![Captura de tela de 2025-07-06 18-57-30](https://github.com/user-attachments/assets/1b884aea-320b-4efa-846a-f5b78a0e1630) <br />
+  Boss 1:   ![Captura de tela de 2025-07-06 18-59-23](https://github.com/user-attachments/assets/239443fe-c8e2-4759-a591-a93e091ab736) <br />
+  Boss 2:   ![Captura de tela de 2025-07-06 19-00-08](https://github.com/user-attachments/assets/85d13133-e062-49b8-85aa-d3b1174c26db) <br />
+  Boss 3:   ![Captura de tela de 2025-07-06 19-00-41](https://github.com/user-attachments/assets/6390ae59-10fb-4a0e-8a8b-e4db2dd9f215) <br />
+<br />
 
 - Projectiles: PlayerProjectile, EnemyProjectile
   Os projeteis dividem caracteristicas em comum entre si, só que tem a diferença que o do jogador danifica as 'SpaceShips' inimigas e os inimigos danificam a 'SpaceShip' do jogador.
 
-  [IMAGEM DOS PROJETEIS]
 
   
 - PowerUps: ShieldPowerUp, TripleShotPowerUp
