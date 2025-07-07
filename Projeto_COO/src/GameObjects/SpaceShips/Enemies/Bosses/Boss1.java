@@ -112,6 +112,6 @@ public class Boss1 extends Boss{
         state = EXPLODING;
         this.explosionStart = timeExplosionStart;
         this.explosionEnd = timeExplosionEnd;
-        GameManager.loadLevel("Jogo_COO/src/fases/fase2.txt");
+        GameManager.loadLevel("./src/fases/fase2.txt");
     }
 }
